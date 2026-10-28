@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Maven
+target/
+
+# Variáveis e credenciais
+.env
+.env.*
+!.env.example
+
+# Configurações locais
+application-local.properties
