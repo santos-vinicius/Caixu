@@ -104,20 +104,20 @@ DELETE  /api/usuarios/{id}
 
 ```text
 GET     /api/categorias?usuarioId={id}
-GET     /api/categorias/{id}
+GET     /api/categorias/{id}?usuarioId={id}
 POST    /api/categorias
 PUT     /api/categorias/{id}
-DELETE  /api/categorias/{id}
+DELETE  /api/categorias/{id}?usuarioId={id}
 ```
 
 ### Transações
 
 ```text
 GET     /api/transacoes?usuarioId={id}
-GET     /api/transacoes/{id}
+GET     /api/transacoes/{id}?usuarioId={id}
 POST    /api/transacoes
 PUT     /api/transacoes/{id}
-DELETE  /api/transacoes/{id}
+DELETE  /api/transacoes/{id}?usuarioId={id}
 ```
 
 ### Autenticação e resumo
