@@ -4,6 +4,8 @@ import br.com.caixu.dto.CategoriaRequest;
 import br.com.caixu.dto.CategoriaResponse;
 import br.com.caixu.entity.Categoria;
 import br.com.caixu.entity.Usuario;
+import br.com.caixu.exception.OwnershipException;
+import br.com.caixu.exception.ResourceNotFoundException;
 import br.com.caixu.repository.CategoriaRepository;
 import br.com.caixu.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -78,13 +80,13 @@ public class CategoriaService {
     private Categoria buscarEntidade(Long id) {
         return categoriaRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Categoria não encontrada"));
+                        new ResourceNotFoundException("Categoria não encontrada"));
     }
 
     private Usuario buscarUsuario(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+                        new ResourceNotFoundException("Usuário não encontrado"));
     }
 
     private void validarUsuario(Long usuarioId) {
@@ -96,7 +98,7 @@ public class CategoriaService {
             Long usuarioId
     ) {
         if (!categoria.getUsuario().getId().equals(usuarioId)) {
-            throw new RuntimeException(
+            throw new OwnershipException(
                     "Categoria não pertence ao usuário informado"
             );
         }

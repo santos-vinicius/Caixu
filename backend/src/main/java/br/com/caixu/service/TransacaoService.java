@@ -5,6 +5,8 @@ import br.com.caixu.dto.TransacaoResponse;
 import br.com.caixu.entity.Categoria;
 import br.com.caixu.entity.Transacao;
 import br.com.caixu.entity.Usuario;
+import br.com.caixu.exception.OwnershipException;
+import br.com.caixu.exception.ResourceNotFoundException;
 import br.com.caixu.repository.CategoriaRepository;
 import br.com.caixu.repository.TransacaoRepository;
 import br.com.caixu.repository.UsuarioRepository;
@@ -104,19 +106,19 @@ public class TransacaoService {
     private Transacao buscarEntidade(Long id) {
         return transacaoRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Transação não encontrada"));
+                        new ResourceNotFoundException("Transação não encontrada"));
     }
 
     private Usuario buscarUsuario(Long usuarioId) {
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+                        new ResourceNotFoundException("Usuário não encontrado"));
     }
 
     private Categoria buscarCategoria(Long categoriaId) {
         return categoriaRepository.findById(categoriaId)
                 .orElseThrow(() ->
-                        new RuntimeException("Categoria não encontrada"));
+                        new ResourceNotFoundException("Categoria não encontrada"));
     }
 
     private void validarUsuario(Long usuarioId) {
@@ -128,7 +130,7 @@ public class TransacaoService {
             Long usuarioId
     ) {
         if (!transacao.getUsuario().getId().equals(usuarioId)) {
-            throw new RuntimeException(
+            throw new OwnershipException(
                     "Transação não pertence ao usuário informado"
             );
         }
@@ -139,7 +141,7 @@ public class TransacaoService {
             Long usuarioId
     ) {
         if (!categoria.getUsuario().getId().equals(usuarioId)) {
-            throw new RuntimeException(
+            throw new OwnershipException(
                     "Categoria não pertence ao usuário informado"
             );
         }

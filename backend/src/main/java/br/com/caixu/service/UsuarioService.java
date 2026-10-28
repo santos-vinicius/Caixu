@@ -3,6 +3,7 @@ package br.com.caixu.service;
 import br.com.caixu.dto.UsuarioRequest;
 import br.com.caixu.dto.UsuarioResponse;
 import br.com.caixu.entity.Usuario;
+import br.com.caixu.exception.ResourceNotFoundException;
 import br.com.caixu.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class UsuarioService {
     public UsuarioResponse buscarPorId(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+                        new ResourceNotFoundException("Usuário não encontrado"));
 
         return paraResponse(usuario);
     }
@@ -51,7 +52,7 @@ public class UsuarioService {
     ) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+                        new ResourceNotFoundException("Usuário não encontrado"));
 
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
@@ -66,7 +67,7 @@ public class UsuarioService {
     public void excluir(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Usuário não encontrado"));
+                        new ResourceNotFoundException("Usuário não encontrado"));
 
         usuarioRepository.delete(usuario);
     }
