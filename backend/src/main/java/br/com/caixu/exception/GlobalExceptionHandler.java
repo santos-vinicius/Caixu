@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import br.com.caixu.exception.InvalidCredentialsException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -65,6 +66,18 @@ public class GlobalExceptionHandler {
           HttpStatus.CONFLICT,
           "Não foi possivel gravar os dados. Verifique se o e-mail já está cadastrado!",
           request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> tratarCredenciais(
+            InvalidCredentialsException exception,
+            HttpServletRequest request
+    ) {
+        return criarResposta(
+                HttpStatus.UNAUTHORIZED,
+                exception.getMessage(),
+                request.getRequestURI()
         );
     }
 
