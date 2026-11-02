@@ -1,17 +1,26 @@
-# macOS
+# Sistema operacional
 .DS_Store
+Thumbs.db
 
 # IntelliJ IDEA
 .idea/
 *.iml
 
-# Maven
+# Java / Maven
 target/
+*.class
 
-# Variáveis e credenciais
+# Credenciais e configurações locais
 .env
 .env.*
 !.env.example
 
-# Configurações locais
 application-local.properties
+application-local.yml
+application-local.yaml
+
+# Chaves privadas e certificados locais
+*.key
+*.pem
+*.p12
+*.pfx
