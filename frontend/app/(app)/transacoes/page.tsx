@@ -1,26 +1,27 @@
+import AppHeader from "@/app/components/AppHeader";
 import ListaTransacoes from "@/app/components/ListaTransacoes";
 import NovaTransacao from "@/app/components/NovaTransacao";
+import { Suspense } from "react";
 
 export default function TransacoesPage() {
   return (
     <section aria-labelledby="transacoes-title">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1
-            id="transacoes-title"
-            className="font-heading text-3xl font-extrabold"
-          >
-            Transações
-          </h1>
+      <AppHeader
+        id="transacoes-title"
+        titulo="Transações"
+        descricao="Consulte e organize suas movimentações."
+        actions={<NovaTransacao />}
+      />
 
-          <p className="mt-2 text-muted">
-            Consulte e organize suas movimentações.
+      <Suspense
+        fallback={
+          <p role="status" className="py-6 text-sm text-muted">
+            Carregando transações…
           </p>
-        </div>
-        <NovaTransacao />
-      </header>
-
-      <ListaTransacoes />
+        }
+      >
+        <ListaTransacoes />
+      </Suspense>
     </section>
   );
 }

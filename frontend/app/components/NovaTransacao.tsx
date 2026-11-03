@@ -9,7 +9,11 @@ import {
   gerarPlanejamento,
 } from "@/app/lib/planejamento";
 
-export default function NovaTransacao() {
+type NovaTransacaoProps = {
+  compact?: boolean;
+};
+
+export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [tipoMovimento, setTipoMovimento] = useState<"DESPESA" | "RECEITA">(
     "DESPESA",
@@ -118,8 +122,9 @@ export default function NovaTransacao() {
         type="button"
         onClick={abrirModal}
         aria-haspopup="dialog"
-        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 font-bold 
-        text-on-primary w-full sm:w-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        className={`inline-flex w-full items-center justify-center rounded-xl bg-primary font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:w-auto ${
+          compact ? "min-h-10 px-3 text-sm" : "min-h-12 px-5"
+        }`}
       >
         + Nova transação
       </button>

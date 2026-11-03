@@ -70,11 +70,7 @@ export default function GerenciarCategorias() {
 
   return (
     <div className="mt-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-muted">
-          {categorias.length} categorias cadastradas
-        </p>
-
+      {/* <div className="flex justify-end">
         <button
           type="button"
           onClick={abrirModal}
@@ -83,7 +79,7 @@ export default function GerenciarCategorias() {
         >
           + Nova categoria
         </button>
-      </div>
+      </div> */}
 
       <p
         role="status"
@@ -104,19 +100,33 @@ export default function GerenciarCategorias() {
           aria-labelledby="suas-categorias-title"
           className="min-w-0 overflow-hidden rounded-3xl border border-border bg-surface"
         >
-          <header className="border-b border-border px-5 py-4">
+          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
             <h2
               id="suas-categorias-title"
               className="font-heading text-xl font-extrabold"
             >
               Suas categorias
             </h2>
+
+            <span className="inline-flex shrink-0 items-center rounded-lg border border-border px-3 py-1 text-xs font-semibold text-muted">
+              {categorias.length}{" "}
+              {categorias.length === 1
+                ? "categoria cadastrada"
+                : "categorias cadastradas"}
+            </span>
           </header>
 
           {categorias.length === 0 ? (
-            <p className="p-6 text-muted">
-              Crie sua primeira categoria para organizar seus lançamentos.
-            </p>
+            <div className="px-6 py-10 text-center">
+              <h3 className="font-heading text-lg font-extrabold">
+                Suas categorias começam aqui.
+              </h3>
+
+              <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
+                Crie uma categoria para organizar seus gastos e recebimentos.
+                Seus lançamentos podem continuar sem categoria.
+              </p>
+            </div>
           ) : (
             <ul className="divide-y divide-border">
               {[...categorias]
@@ -190,7 +200,12 @@ export default function GerenciarCategorias() {
 
           <p className="mt-3 text-sm leading-relaxed text-muted">
             Separe seus gastos e recebimentos com nomes que façam sentido para
-            você. Classifique agora ou deixe para depois.
+            você.
+          </p>
+
+          <p className="mt-4 rounded-lg bg-surface px-3 py-2 text-sm leading-relaxed text-primary">
+            <span className="font-bold">Dica:</span> você pode categorizar seus
+            lançamentos depois.
           </p>
 
           <dl className="mt-5 space-y-3 border-t border-border pt-4 text-sm">

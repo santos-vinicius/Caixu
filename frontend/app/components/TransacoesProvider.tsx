@@ -1,13 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
-
 import { categoriasDemo } from "@/app/lib/categorias-demo";
 import {
   saldoInicial as saldoInicialDemo,
   transacoesDemo,
   type TransacaoDemo,
 } from "@/app/lib/demo-data";
+import { useHoje } from "@/app/lib/use-hoje";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { CategoriaDemo } from "../lib/categorias-demo";
 import {
   selecionarParaExclusao,
@@ -28,6 +28,7 @@ export type UsuarioDemo = {
 };
 
 type TransacoesContextValue = {
+  dataReferencia: string;
   transacoes: TransacaoDemo[];
   adicionarTransacoes: (novas: NovaTransacaoDemo[]) => void;
   excluirTransacao: (id: number, escopo?: EscopoExclusao) => void;
@@ -49,6 +50,7 @@ export default function TransacoesProvider({
 }: {
   children: ReactNode;
 }) {
+  const dataReferencia = useHoje();
   const [transacoes, setTransacoes] = useState<TransacaoDemo[]>(transacoesDemo);
   const [categorias, setCategorias] = useState<CategoriaDemo[]>(categoriasDemo);
   const [usuario, setUsuario] = useState<UsuarioDemo>({
@@ -188,10 +190,19 @@ export default function TransacoesProvider({
     }));
   }
 
+  if (dataReferencia === null) {
+    return (
+      <p role="status" className="p-6 text-sm text-muted">
+        Preparando seu espaço…
+      </p>
+    );
+  }
+
   return (
     <TransacoesContext.Provider
       value={{
         transacoes,
+        dataReferencia,
         adicionarTransacoes,
         excluirTransacao,
         editarTransacao,

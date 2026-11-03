@@ -3,7 +3,6 @@ import { ReactNode } from "react";
 import AppNavigation from "../components/AppNavigation";
 import Logo from "../components/Logo";
 import TransacoesProvider from "../components/TransacoesProvider";
-import UsuarioSidebar from "../components/UsuarioSidebar";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -34,15 +33,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <AppNavigation />
           </div>
 
-          <div className="mt-6 lg:mt-auto lg:pt-8">
-            <UsuarioSidebar />
-          </div>
-          <div className="mt-auto hidden pt-8 lg:block">
-            <div className="rounded-2xl border border-border bg-background p-4">
-              <p className="font-heading text-sm font-extrabold text-center">
-                Projeto em Desenvolvimento
-              </p>
-            </div>
+          <div className="mt-6 border-t border-border pt-5 lg:mt-auto lg:pt-6">
+            <p className="text-xs text-muted">Feito por Vinicius Santos</p>
+
+            <a
+              href="https://github.com/santos-vinicius/Caixu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-bold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Conheça o projeto
+              <span aria-hidden="true">↗</span>
+              <span className="sr-only"> — abre em uma nova aba</span>
+            </a>
           </div>
         </aside>
 

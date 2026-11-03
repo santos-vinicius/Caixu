@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import { dataReferencia } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "../lib/formatters";
 import { useTransacoes } from "./TransacoesProvider";
 
@@ -14,11 +13,10 @@ export default function ListaTransacoes() {
   const [busca, setBusca] = useState("");
   const [tipo, setTipo] = useState("TODOS");
   const [periodo, setPeriodo] = useState("TODOS");
-  const { transacoes } = useTransacoes();
+  const { transacoes, dataReferencia: hoje } = useTransacoes();
   const [mensagem, setMensagem] = useState("");
   const resultadoRef = useRef<HTMLParagraphElement>(null);
   const [ordenacao, setOrdenacao] = useState<Ordenacao>("PROXIMAS");
-  const [hoje] = useState(obterHojeLocal);
 
   function informarAlteracao(texto: string) {
     setMensagem(texto);
@@ -42,7 +40,7 @@ export default function ListaTransacoes() {
       const correspondeTipo =
         tipo === "TODOS" || transacao.tipoMovimento === tipo;
 
-      const futura = transacao.dataTransacao > dataReferencia;
+      const futura = transacao.dataTransacao > hoje;
 
       const correspondePeriodo =
         periodo === "TODOS" ||
@@ -88,21 +86,13 @@ export default function ListaTransacoes() {
 
   type Ordenacao = "PROXIMAS" | "ADICIONADAS" | "DATA_ASC" | "DATA_DESC";
 
-  function obterHojeLocal() {
-    const hoje = new Date();
-
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-    const dia = String(hoje.getDate()).padStart(2, "0");
-
-    return `${ano}-${mes}-${dia}`;
-  }
-
   function converterDataParaNumero(data: string) {
     const [ano, mes, dia] = data.split("-").map(Number);
     return Date.UTC(ano, mes - 1, dia);
   }
 
+  const temFiltrosAtivos =
+    busca.trim() !== "" || tipo !== "TODOS" || periodo !== "TODOS";
   return (
     <div className="mt-6">
       <p
@@ -164,7 +154,7 @@ export default function ListaTransacoes() {
             className={campoClasse}
           >
             <option value="TODOS">Todas as datas</option>
-            <option value="ATE_REFERENCIA">Até a data de referência</option>
+            <option value="ATE_REFERENCIA">Até hoje</option>
             <option value="FUTURAS">Datas futuras</option>
           </select>
         </div>
@@ -189,24 +179,45 @@ export default function ListaTransacoes() {
       </div>
 
       <div className="my-4 flex flex-wrap items-center justify-between gap-3">
-        <p role="status" className="text-sm text-muted">
-          {transacoesFiltradas.length}{" "}
-          {transacoesFiltradas.length === 1
-            ? "transação encontrada"
-            : "transações encontradas"}
-        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="font-heading text-lg font-extrabold">
+            Suas transações
+          </h2>
 
-        <button
-          type="button"
-          onClick={() => {
-            setBusca("");
-            setTipo("TODOS");
-            setPeriodo("TODOS");
-          }}
-          className="min-h-11 rounded-lg px-3 text-sm font-bold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          Limpar filtros
-        </button>
+          <span
+            role="status"
+            className="rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-muted"
+          >
+            {transacoesFiltradas.length}{" "}
+            {transacoesFiltradas.length === 1 ? "transação" : "transações"}
+          </span>
+        </div>
+
+        {temFiltrosAtivos && (
+          <button
+            type="button"
+            onClick={() => {
+              setBusca("");
+              setTipo("TODOS");
+              setPeriodo("TODOS");
+            }}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 text-xs font-semibold text-primary transition-colors hover:border-primary hover:bg-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            >
+              <path d="m6 6 12 12M18 6 6 18" />
+            </svg>
+            Limpar filtros
+          </button>
+        )}
       </div>
 
       {transacoesFiltradas.length === 0 ? (
@@ -221,8 +232,20 @@ export default function ListaTransacoes() {
       ) : (
         <ul className="divide-y divide-border overflow-hidden rounded-3xl border border-border bg-surface">
           {transacoesFiltradas.map((transacao) => {
+            const diasAteData = Math.round(
+              (Date.parse(`${transacao.dataTransacao}T00:00:00Z`) -
+                Date.parse(`${hoje}T00:00:00Z`)) /
+                86_400_000,
+            );
+
+            const distancia =
+              diasAteData === 0
+                ? "Hoje"
+                : diasAteData === 1
+                  ? "Em 1 dia"
+                  : `Em ${diasAteData} dias`;
+
             const receita = transacao.tipoMovimento === "RECEITA";
-            const futura = transacao.dataTransacao > dataReferencia;
 
             return (
               <li
@@ -234,15 +257,49 @@ export default function ListaTransacoes() {
                     {transacao.descricao}
                   </h2>
 
-                  <p className="mt-1 text-sm text-muted">
-                    {receita ? "Receita" : "Despesa"} ·{" "}
-                    {formatarData(transacao.dataTransacao)}
-                  </p>
-
-                  {futura && (
-                    <span className="mt-2 inline-block rounded-lg bg-planned-background px-2 py-1 text-xs font-bold text-planned-text">
-                      Data futura
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-muted">
+                      {receita ? "Recebimento" : "Gasto"}
                     </span>
+
+                    <span aria-hidden="true" className="text-muted">
+                      ·
+                    </span>
+
+                    <time
+                      dateTime={transacao.dataTransacao}
+                      className={`inline-flex flex-wrap items-center gap-x-1 rounded-md border px-2 py-0.5 text-xs font-semibold ${
+                        diasAteData > 0
+                          ? "border-transparent bg-planned-background text-planned-text"
+                          : diasAteData === 0
+                            ? "border-transparent bg-raised text-primary"
+                            : "border-border bg-surface text-muted"
+                      }`}
+                    >
+                      {formatarData(transacao.dataTransacao)}
+
+                      {diasAteData >= 0 && <span>· {distancia}</span>}
+                    </time>
+                  </div>
+
+                  {transacao.modalidade === "PARCELADA" && (
+                    <p className="mt-1 text-xs font-bold text-primary">
+                      {receita ? "Recebimento" : "Parcela"}{" "}
+                      {transacao.numeroOcorrencia} de{" "}
+                      {transacao.totalOcorrencias}
+                    </p>
+                  )}
+
+                  {transacao.modalidade === "RECORRENTE" && (
+                    <p className="mt-1 text-xs font-bold text-primary">
+                      Recorrente ·{" "}
+                      {transacao.frequencia === "SEMANAL"
+                        ? "Semanal"
+                        : "Mensal"}
+                      {" · "}
+                      {transacao.numeroOcorrencia} de{" "}
+                      {transacao.totalOcorrencias}
+                    </p>
                   )}
                 </div>
 

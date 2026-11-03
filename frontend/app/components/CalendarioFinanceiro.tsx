@@ -5,11 +5,11 @@ import { useState } from "react";
 import DetalhesDiaModal from "@/app/components/DetalhesDiaModal";
 import { useTransacoes } from "@/app/components/TransacoesProvider";
 import { gerarCalendario } from "@/app/lib/calendario";
-import { dataReferencia } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
+import NovaTransacao from "./NovaTransacao";
 
 export default function CalendarioFinanceiro() {
-  const { transacoes, usuario } = useTransacoes();
+  const { transacoes, usuario, dataReferencia } = useTransacoes();
   const saldoInicial = usuario.saldoInicial;
   const [anoInicial, mesInicial] = dataReferencia.split("-").map(Number);
 
@@ -62,87 +62,124 @@ export default function CalendarioFinanceiro() {
     ) / 100;
 
   const nomesSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
   const botaoClasse =
-    "inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-surface px-4 font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
-
+    "inline-flex min-h-10 items-center justify-center rounded-xl border border-border bg-surface px-3 text-sm font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
   const setaClasse =
     "inline-flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface text-3xl font-bold text-primary hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
   return (
     <div className="mt-5">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => mudarMes(-1)}
-            aria-label="Mês anterior"
-            className={setaClasse}
-          >
-            ‹
-          </button>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => mudarMes(-1)}
+              aria-label="Mês anterior"
+              className={setaClasse}
+            >
+              ‹
+            </button>
 
-          <h2
-            aria-live="polite"
-            className="font-heading text-xl font-extrabold capitalize"
-          >
-            {tituloMes}
-          </h2>
+            <h2
+              aria-live="polite"
+              className="font-heading text-lg font-extrabold first-letter:uppercase"
+            >
+              {tituloMes}
+            </h2>
 
-          <button
-            type="button"
-            onClick={() => mudarMes(1)}
-            aria-label="Próximo mês"
-            className={setaClasse}
-          >
-            ›
-          </button>
+            <button
+              type="button"
+              onClick={() => mudarMes(1)}
+              aria-label="Próximo mês"
+              className={setaClasse}
+            >
+              ›
+            </button>
+          </div>
+
+          <p className="mt-2 text-xs text-muted">
+            Demonstração · {formatarData(dataReferencia)}
+          </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setDiaSelecionado(null);
-            setPeriodo({ ano: anoInicial, mes: mesInicial });
-          }}
-          className={botaoClasse}
-        >
-          Voltar ao mês de referência
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setDiaSelecionado(null);
+              setPeriodo({ ano: anoInicial, mes: mesInicial });
+            }}
+            className={botaoClasse}
+          >
+            Mês de referência
+          </button>
+
+          <NovaTransacao compact />
+        </div>
       </div>
 
-      <div className="mb-4 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <p className="text-sm font-bold text-muted">
-            Saldo de abertura do mês
-          </p>
+      <dl className="mb-6 grid gap-3 sm:grid-cols-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-border bg-surface px-4 py-3">
+          <dt className="text-sm font-bold text-muted">Saldo de abertura</dt>
 
-          <p className="mt-1 text-xl font-extrabold tabular-nums">
+          <dd className="text-xl font-extrabold tabular-nums">
             {formatarMoeda(saldoAbertura)}
-          </p>
+          </dd>
         </div>
 
-        <div className="rounded-xl bg-brand-plum p-4 text-brand-cream">
-          <p className="text-sm font-bold">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 rounded-xl border border-border bg-raised px-4 py-3">
+          <dt className="text-sm font-bold text-primary">
             {dias.some((dia) => dia.futuro)
-              ? "Fechamento projetado do mês"
-              : "Saldo de fechamento do mês"}
-          </p>
+              ? "Fechamento projetado"
+              : "Fechamento"}
+          </dt>
 
-          <p className="mt-1 text-xl font-extrabold tabular-nums">
+          <dd
+            className={`text-xl font-extrabold tabular-nums ${
+              saldoFinal < 0 ? "text-negative" : "text-primary"
+            }`}
+          >
             {formatarMoeda(saldoFinal)}
-          </p>
+          </dd>
+        </div>
+      </dl>
+
+      <div className="mb-4">
+        <p className="text-sm text-muted">
+          <strong className="text-foreground">Seu saldo, dia a dia.</strong>{" "}
+          Selecione uma data para consultar as movimentações.
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted">
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="size-2.5 rounded-sm bg-positive"
+            />
+            Positivo
+          </span>
+
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="size-2.5 rounded-sm bg-negative"
+            />
+            Negativo
+          </span>
+
+          <span className="inline-flex items-center gap-1.5">
+            <span
+              aria-hidden="true"
+              className="h-3 w-4 rounded-sm border border-dashed border-muted"
+            />
+            Datas futuras: saldo projetado pelos lançamentos cadastrados.
+          </span>
         </div>
       </div>
-
-      <p className="mb-4 text-sm text-muted">
-        Dados de demonstração · Referência: {formatarData(dataReferencia)}. Os
-        saldos incluem as movimentações até cada dia. Selecione um dia para ver
-        os detalhes.
-      </p>
 
       <div className="@container">
-        <div
+        {/* <div
           aria-hidden="true"
           className="mb-2 hidden grid-cols-7 gap-2 @[900px]:grid"
         >
@@ -150,6 +187,19 @@ export default function CalendarioFinanceiro() {
             <span
               key={nome}
               className="px-3 py-2 text-center text-sm font-bold text-muted"
+            >
+              {nome}
+            </span>
+          ))}
+        </div> */}
+        <div
+          aria-hidden="true"
+          className="mb-3 hidden grid-cols-7 gap-2 rounded-xl border border-border bg-raised py-2 @[900px]:grid"
+        >
+          {nomesSemana.map((nome) => (
+            <span
+              key={nome}
+              className="px-2 text-center text-xs font-bold text-primary"
             >
               {nome}
             </span>
@@ -188,7 +238,7 @@ export default function CalendarioFinanceiro() {
                 key={dia.data}
                 className={`flex min-w-0 flex-col overflow-hidden rounded-xl border-2 bg-surface ${
                   selecionado || referencia ? "border-primary" : "border-border"
-                }`}
+                } ${dia.futuro ? "border-dashed" : ""}`}
               >
                 <button
                   type="button"
@@ -222,10 +272,8 @@ export default function CalendarioFinanceiro() {
 
                     <span className="mt-1 text-xs text-muted">
                       {quantidade === 0
-                        ? "Sem movimentações"
-                        : `${quantidade} ${
-                            quantidade === 1 ? "movimento" : "movimentos"
-                          }`}
+                        ? "Sem movimentos"
+                        : `${quantidade} ${quantidade === 1 ? "movimento" : "movimentos"}`}
                     </span>
 
                     <span className="mt-2 block space-y-1">
@@ -253,7 +301,10 @@ export default function CalendarioFinanceiro() {
                     className={`mt-auto block w-full px-2.5 py-2 ${saldoClasse}`}
                   >
                     <span className="block text-xs">
-                      {dia.futuro ? "Saldo projetado" : "Saldo acumulado"}
+                      Saldo
+                      <span className="sr-only">
+                        {dia.futuro ? " projetado" : " acumulado"}
+                      </span>
                     </span>
 
                     <span className="mt-1 block text-sm font-extrabold tabular-nums">

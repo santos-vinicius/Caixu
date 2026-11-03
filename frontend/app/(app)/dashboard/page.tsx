@@ -1,13 +1,15 @@
 "use client";
-import Link from "next/link";
 
+import NovaTransacao from "@/app/components/NovaTransacao";
+import ProximosMarcos from "@/app/components/ProximosMarcos";
 import SaldoCard from "@/app/components/SaldoCard";
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import { dataReferencia } from "@/app/lib/demo-data";
+import UsuarioAvatar from "@/app/components/UsuarioAvatar";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
+import Link from "next/link";
 
 export default function DashboardPage() {
-  const { transacoes, usuario } = useTransacoes();
+  const { transacoes, usuario, dataReferencia } = useTransacoes();
   const saldoInicial = usuario.saldoInicial;
 
   function calcularSaldo(registros: typeof transacoes) {
@@ -46,49 +48,68 @@ export default function DashboardPage() {
 
   return (
     <section aria-labelledby="dashboard-title">
-      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1
-            id="dashboard-title"
-            className="font-heading text-3xl font-extrabold"
-          >
-            Olá, {primeiroNome}!
-          </h1>
+      <header className="mb-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1
+              id="dashboard-title"
+              className="font-heading text-3xl font-extrabold"
+            >
+              Olá, {primeiroNome}!
+            </h1>
 
-          <p className="mt-2 text-muted">Seu mês, mais claro.</p>
+            <p className="mt-2 text-muted">
+              Acompanhe seu dinheiro, de hoje em diante.
+            </p>
+          </div>
 
-          <p className="mt-2 text-muted">
-            Dados de demonstração · Referência: {formatarData(dataReferencia)}
-          </p>
+          <div className="flex shrink-0 items-center gap-3">
+            <NovaTransacao />
+            <UsuarioAvatar />
+          </div>
         </div>
 
-        <Link
-          href="/transacoes"
-          className="inline-flex min-h-12 items-center rounded-xl bg-primary px-5 font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          Ver transações
-        </Link>
+        <p className="mt-3 text-xs text-muted">
+          Dados de demonstração · Referência: {formatarData(dataReferencia)}
+        </p>
       </header>
-
-      <div className="grid gap-4 xl:grid-cols-3">
+      {/* cards de saldo */}
+      <div className="grid gap-4 md:grid-cols-2">
         <SaldoCard
           titulo="Saldo atual"
           valor={saldoAtual}
-          descricao="Considera os lançamentos até a data de referência."
+          descricao="Inclui os lançamentos até a data de referência."
           destaque
         />
 
-        <SaldoCard
-          titulo="Saldo inicial"
-          valor={saldoInicial}
-          descricao="Seu ponto de partida no Caixu."
-        />
+        <section
+          aria-labelledby="saldo-projetado-title"
+          className="min-w-0 rounded-3xl bg-brand-plum p-6 text-brand-cream"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="saldo-projetado-title" className="text-sm font-bold">
+              Saldo projetado
+            </h2>
 
-        <SaldoCard
-          titulo="Saldo projetado"
-          valor={saldoProjetado}
-          descricao="Inclui todos os lançamentos futuros cadastrados."
-        />
+            <span className="rounded-lg border border-dark-muted px-2 py-1 text-xs">
+              Visão futura
+            </span>
+          </div>
+
+          <p className="mt-3 wrap-break-word text-3xl font-extrabold tabular-nums">
+            {formatarMoeda(saldoProjetado)}
+          </p>
+
+          <p className="mt-3 text-sm text-dark-muted">
+            Inclui todos os lançamentos futuros cadastrados.
+          </p>
+
+          {saldoProjetado < 0 && (
+            <p className="mt-3 text-sm font-bold text-[#FFB8CD]">
+              Projeção negativa
+            </p>
+          )}
+        </section>
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-2">
@@ -96,12 +117,28 @@ export default function DashboardPage() {
           aria-labelledby="ultimas-title"
           className="rounded-3xl border border-border bg-surface p-6"
         >
-          <h2
-            id="ultimas-title"
-            className="font-heading text-2xl font-extrabold"
-          >
-            Últimas transações
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2
+              id="ultimas-title"
+              className="font-heading text-2xl font-extrabold"
+            >
+              Últimas transações
+            </h2>
+
+            <Link
+              href="/transacoes"
+              className="inline-flex min-h-11 items-center rounded-lg text-sm font-bold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Ver todas →
+            </Link>
+          </div>
+
+          {ultimasTransacoes.length === 0 && (
+            <p className="mt-4 text-sm text-muted">
+              Nenhuma movimentação até a data de referência. Adicione um gasto
+              ou recebimento para começar.
+            </p>
+          )}
 
           <ul className="mt-4 divide-y divide-border">
             {ultimasTransacoes.map((transacao) => (
@@ -139,6 +176,12 @@ export default function DashboardPage() {
             Despesas futuras
           </h2>
 
+          {despesasFuturas.length === 0 && (
+            <p className="mt-4 text-sm text-muted">
+              Nenhuma despesa futura cadastrada.
+            </p>
+          )}
+
           <ul className="mt-4 divide-y divide-border">
             {despesasFuturas.map((transacao) => (
               <li
@@ -160,6 +203,7 @@ export default function DashboardPage() {
           </ul>
         </section>
       </div>
+      <ProximosMarcos />
     </section>
   );
 }

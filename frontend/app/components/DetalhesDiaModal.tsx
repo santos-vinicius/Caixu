@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
+import { useTransacoes } from "@/app/components/TransacoesProvider";
 import type { TransacaoDemo } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
+import { useEffect, useRef } from "react";
 
 type DetalhesDiaModalProps = {
   data: string;
@@ -17,6 +17,7 @@ export default function DetalhesDiaModal({
   onClose,
 }: DetalhesDiaModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const { categorias } = useTransacoes();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -71,6 +72,9 @@ export default function DetalhesDiaModal({
         <ul className="mt-6 divide-y divide-border">
           {transacoes.map((transacao) => {
             const receita = transacao.tipoMovimento === "RECEITA";
+            const categoria = categorias.find(
+              (item) => item.id === transacao.categoriaId,
+            );
 
             return (
               <li
@@ -82,14 +86,36 @@ export default function DetalhesDiaModal({
                     {transacao.descricao}
                   </p>
 
-                  <p className="text-sm text-muted">
-                    {receita ? "Receita" : "Despesa"}
+                  <p className="mt-1 text-sm text-muted">
+                    {receita ? "Recebimento" : "Gasto"}
+                    {" · "}
+                    {categoria?.nomeCategoria ?? "Sem categoria"}
                   </p>
+
+                  {transacao.modalidade === "PARCELADA" && (
+                    <p className="mt-2 text-xs font-bold text-primary">
+                      {receita ? "Recebimento" : "Parcela"}{" "}
+                      {transacao.numeroOcorrencia} de{" "}
+                      {transacao.totalOcorrencias}
+                    </p>
+                  )}
+
+                  {transacao.modalidade === "RECORRENTE" && (
+                    <p className="mt-2 text-xs font-bold text-primary">
+                      Recorrente ·{" "}
+                      {transacao.frequencia === "SEMANAL"
+                        ? "Semanal"
+                        : "Mensal"}
+                      {" · "}
+                      {transacao.numeroOcorrencia} de{" "}
+                      {transacao.totalOcorrencias}
+                    </p>
+                  )}
                 </div>
 
                 <p
                   className={`font-bold tabular-nums ${
-                    receita ? "text-income" : "text-expense"
+                    receita ? "text-positive" : "text-negative"
                   }`}
                 >
                   {receita ? "+" : "−"} {formatarMoeda(transacao.valor)}

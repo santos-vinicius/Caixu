@@ -41,8 +41,8 @@ export default function AppNavigation() {
 
   return (
     <nav aria-label="Navegação principal">
-      <p className="mb-3 hidden px-4 text-xs font-bold tracking-widest text-muted uppercase lg:block">
-        Seu espaço
+      <p className="mb-3 hidden px-4 text-xs font-bold text-muted uppercase lg:block">
+        Seu espaço financeiro
       </p>
 
       <ul className="flex gap-2 overflow-x-auto p-1 lg:flex-col">
