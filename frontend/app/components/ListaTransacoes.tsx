@@ -16,6 +16,7 @@ export default function ListaTransacoes() {
   const { transacoes, dataReferencia: hoje } = useTransacoes();
   const [mensagem, setMensagem] = useState("");
   const resultadoRef = useRef<HTMLParagraphElement>(null);
+  const filtrosRef = useRef<HTMLDialogElement>(null);
   const [ordenacao, setOrdenacao] = useState<Ordenacao>("PROXIMAS");
 
   function informarAlteracao(texto: string) {
@@ -93,6 +94,66 @@ export default function ListaTransacoes() {
 
   const temFiltrosAtivos =
     busca.trim() !== "" || tipo !== "TODOS" || periodo !== "TODOS";
+  const quantidadeFiltros =
+    Number(tipo !== "TODOS") + Number(periodo !== "TODOS");
+
+  function camposFiltro(prefixo: string) {
+    return (
+      <>
+        <div className="flex flex-col gap-2">
+          <label htmlFor={`${prefixo}-tipo`} className="text-sm font-bold">
+            Tipo
+          </label>
+
+          <select
+            id={`${prefixo}-tipo`}
+            value={tipo}
+            onChange={(event) => setTipo(event.target.value)}
+            className={campoClasse}
+          >
+            <option value="TODOS">Todos os tipos</option>
+            <option value="RECEITA">Receitas</option>
+            <option value="DESPESA">Despesas</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor={`${prefixo}-periodo`} className="text-sm font-bold">
+            Período
+          </label>
+
+          <select
+            id={`${prefixo}-periodo`}
+            value={periodo}
+            onChange={(event) => setPeriodo(event.target.value)}
+            className={campoClasse}
+          >
+            <option value="TODOS">Todas as datas</option>
+            <option value="ATE_REFERENCIA">Até hoje</option>
+            <option value="FUTURAS">Datas futuras</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor={`${prefixo}-ordenacao`} className="text-sm font-bold">
+            Ordenar por
+          </label>
+
+          <select
+            id={`${prefixo}-ordenacao`}
+            value={ordenacao}
+            onChange={(event) => setOrdenacao(event.target.value as Ordenacao)}
+            className={campoClasse}
+          >
+            <option value="PROXIMAS">Mais próximas de hoje</option>
+            <option value="ADICIONADAS">Últimas adicionadas</option>
+            <option value="DATA_ASC">Data: antigas primeiro</option>
+            <option value="DATA_DESC">Data: futuras primeiro</option>
+          </select>
+        </div>
+      </>
+    );
+  }
   return (
     <div className="mt-6">
       <p
@@ -109,12 +170,11 @@ export default function ListaTransacoes() {
       >
         {mensagem}
       </p>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="flex min-w-0 flex-col gap-2">
           <label htmlFor="busca-transacoes" className="text-sm font-bold">
             Buscar descrição
           </label>
-
           <input
             id="busca-transacoes"
             type="search"
@@ -124,59 +184,65 @@ export default function ListaTransacoes() {
             className={campoClasse}
           />
         </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="tipo-transacoes" className="text-sm font-bold">
-            Tipo
-          </label>
-
-          <select
-            id="tipo-transacoes"
-            value={tipo}
-            onChange={(event) => setTipo(event.target.value)}
-            className={campoClasse}
-          >
-            <option value="TODOS">Todos os tipos</option>
-            <option value="RECEITA">Receitas</option>
-            <option value="DESPESA">Despesas</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="periodo-transacoes" className="text-sm font-bold">
-            Período
-          </label>
-
-          <select
-            id="periodo-transacoes"
-            value={periodo}
-            onChange={(event) => setPeriodo(event.target.value)}
-            className={campoClasse}
-          >
-            <option value="TODOS">Todas as datas</option>
-            <option value="ATE_REFERENCIA">Até hoje</option>
-            <option value="FUTURAS">Datas futuras</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="ordenacao-transacoes" className="text-sm font-bold">
-            Ordenar por
-          </label>
-
-          <select
-            id="ordenacao-transacoes"
-            value={ordenacao}
-            onChange={(event) => setOrdenacao(event.target.value as Ordenacao)}
-            className={campoClasse}
-          >
-            <option value="PROXIMAS">Mais próximas de hoje</option>
-            <option value="ADICIONADAS">Últimas adicionadas</option>
-            <option value="DATA_ASC">Data: antigas primeiro</option>
-            <option value="DATA_DESC">Data: futuras primeiro</option>
-          </select>
-        </div>
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          onClick={() => filtrosRef.current?.showModal()}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border bg-surface px-3 text-sm font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:hidden"
+        >
+          Filtros
+          {quantidadeFiltros > 0 && (
+            <span className="rounded-md bg-raised px-1.5 py-0.5 text-xs">
+              {quantidadeFiltros}
+            </span>
+          )}
+        </button>
+        <div className="hidden md:contents">{camposFiltro("desktop")}</div>
       </div>
+      <dialog
+        ref={filtrosRef}
+        aria-labelledby="filtros-title"
+        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-5 text-foreground backdrop:bg-brand-plum/60"
+      >
+        <header className="mb-5 flex items-center justify-between gap-3">
+          <h2
+            id="filtros-title"
+            className="font-heading text-xl font-extrabold"
+          >
+            Filtros e ordenação
+          </h2>
+          <button
+            type="button"
+            aria-label="Fechar filtros"
+            onClick={() => filtrosRef.current?.close()}
+            className="size-11 shrink-0 rounded-xl border border-border text-xl text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            ×
+          </button>
+        </header>
+        <div className="grid gap-4">{camposFiltro("mobile")}</div>
+        <div className="mt-5 grid gap-2 border-t border-border pt-4">
+          <button
+            type="button"
+            onClick={() => filtrosRef.current?.close()}
+            className="min-h-12 rounded-xl bg-primary px-4 font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Ver {transacoesFiltradas.length}{" "}
+            {transacoesFiltradas.length === 1 ? "transação" : "transações"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setTipo("TODOS");
+              setPeriodo("TODOS");
+              setOrdenacao("PROXIMAS");
+            }}
+            className="min-h-11 rounded-xl px-3 text-sm font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            Restaurar opções
+          </button>
+        </div>
+      </dialog>
 
       <div className="my-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
@@ -250,7 +316,7 @@ export default function ListaTransacoes() {
             return (
               <li
                 key={transacao.id}
-                className="flex flex-wrap items-center justify-between gap-4 p-5"
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center"
               >
                 <div className="min-w-0 flex-1">
                   <h2 className="font-bold wrap-break-word">
@@ -304,14 +370,14 @@ export default function ListaTransacoes() {
                 </div>
 
                 <p
-                  className={`font-extrabold tabular-nums ${
+                  className={`max-w-[40vw] text-right text-sm font-extrabold tabular-nums [overflow-wrap:anywhere] sm:max-w-none sm:text-base ${
                     receita ? "text-income" : "text-expense"
                   }`}
                 >
                   {receita ? "+" : "−"} {formatarMoeda(transacao.valor)}
                 </p>
 
-                <div className="flex items-center gap-1">
+                <div className="col-span-2 flex items-center justify-end gap-1 border-t border-border pt-1 lg:col-span-1 lg:border-0 lg:pt-0">
                   <EditarTransacao
                     transacao={transacao}
                     onSaved={informarAlteracao}

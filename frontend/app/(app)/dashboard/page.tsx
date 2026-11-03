@@ -4,7 +4,7 @@ import NovaTransacao from "@/app/components/NovaTransacao";
 import ProximosMarcos from "@/app/components/ProximosMarcos";
 import SaldoCard from "@/app/components/SaldoCard";
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import UsuarioAvatar from "@/app/components/UsuarioAvatar";
+import AppHeader from "@/app/components/AppHeader";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
 import Link from "next/link";
 
@@ -48,31 +48,17 @@ export default function DashboardPage() {
 
   return (
     <section aria-labelledby="dashboard-title">
-      <header className="mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1
-              id="dashboard-title"
-              className="font-heading text-3xl font-extrabold"
-            >
-              Olá, {primeiroNome}!
-            </h1>
-
-            <p className="mt-2 text-muted">
-              Acompanhe seu dinheiro, de hoje em diante.
-            </p>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-3">
-            <NovaTransacao />
-            <UsuarioAvatar />
-          </div>
-        </div>
-
+      <div className="mb-6">
+        <AppHeader
+          id="dashboard-title"
+          titulo={`Olá, ${primeiroNome}!`}
+          descricao="Acompanhe seu dinheiro, de hoje em diante."
+          actions={<NovaTransacao />}
+        />
         <p className="mt-3 text-xs text-muted">
           Dados de demonstração · Referência: {formatarData(dataReferencia)}
         </p>
-      </header>
+      </div>
       {/* cards de saldo */}
       <div className="grid gap-4 md:grid-cols-2">
         <SaldoCard
@@ -115,12 +101,12 @@ export default function DashboardPage() {
       <div className="mt-8 grid gap-6 xl:grid-cols-2">
         <section
           aria-labelledby="ultimas-title"
-          className="rounded-3xl border border-border bg-surface p-6"
+          className="min-w-0 rounded-3xl border border-border bg-surface p-4 sm:p-6"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2
               id="ultimas-title"
-              className="font-heading text-2xl font-extrabold"
+              className="font-heading text-xl font-extrabold sm:text-2xl"
             >
               Últimas transações
             </h2>
@@ -144,10 +130,12 @@ export default function DashboardPage() {
             {ultimasTransacoes.map((transacao) => (
               <li
                 key={transacao.id}
-                className="flex flex-wrap items-center justify-between gap-3 py-4"
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3 py-4"
               >
                 <div>
-                  <p className="font-bold">{transacao.descricao}</p>
+                  <p className="font-bold [overflow-wrap:anywhere]">
+                    {transacao.descricao}
+                  </p>
                   <p className="text-sm text-muted">
                     {transacao.tipoMovimento === "RECEITA"
                       ? "Receita"
@@ -156,7 +144,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
 
-                <p className="font-bold tabular-nums">
+                <p className="max-w-36 text-right text-sm font-bold tabular-nums [overflow-wrap:anywhere] sm:text-base">
                   {transacao.tipoMovimento === "RECEITA" ? "+" : "−"}{" "}
                   {formatarMoeda(transacao.valor)}
                 </p>
@@ -167,11 +155,11 @@ export default function DashboardPage() {
 
         <section
           aria-labelledby="futuras-title"
-          className="rounded-3xl border border-border bg-surface p-6"
+          className="min-w-0 rounded-3xl border border-border bg-surface p-4 sm:p-6"
         >
           <h2
             id="futuras-title"
-            className="font-heading text-2xl font-extrabold"
+            className="font-heading text-xl font-extrabold sm:text-2xl"
           >
             Despesas futuras
           </h2>
@@ -186,16 +174,18 @@ export default function DashboardPage() {
             {despesasFuturas.map((transacao) => (
               <li
                 key={transacao.id}
-                className="flex flex-wrap items-center justify-between gap-3 py-4"
+                className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-start gap-3 py-4"
               >
                 <div>
-                  <p className="font-bold">{transacao.descricao}</p>
+                  <p className="font-bold [overflow-wrap:anywhere]">
+                    {transacao.descricao}
+                  </p>
                   <p className="text-sm text-muted">
                     {formatarData(transacao.dataTransacao)}
                   </p>
                 </div>
 
-                <p className="font-bold tabular-nums">
+                <p className="max-w-36 text-right text-sm font-bold tabular-nums [overflow-wrap:anywhere] sm:text-base">
                   − {formatarMoeda(transacao.valor)}
                 </p>
               </li>

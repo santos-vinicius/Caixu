@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [
+export const links = [
   {
     href: "/dashboard",
     label: "Visão geral",

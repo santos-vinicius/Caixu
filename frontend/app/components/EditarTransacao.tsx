@@ -97,7 +97,7 @@ export default function EditarTransacao({
       <dialog
         ref={dialogRef}
         aria-labelledby={`${prefixo}-titulo`}
-        className="caixu-scrollbar fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
+        className="caixu-scrollbar fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
       >
         <h2
           id={`${prefixo}-titulo`}

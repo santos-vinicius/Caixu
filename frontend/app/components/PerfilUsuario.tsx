@@ -70,7 +70,7 @@ export default function PerfilUsuario() {
 
   return (
     <div className="mt-8 grid items-start gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
-      <aside className="rounded-3xl border border-border bg-raised p-6 text-center">
+      <aside className="hidden rounded-3xl border border-border bg-raised p-6 text-center xl:block">
         <Image
           src="/images/caixu-neutral.svg"
           alt=""
@@ -92,7 +92,7 @@ export default function PerfilUsuario() {
 
       <section
         aria-labelledby="dados-pessoais-title"
-        className="min-w-0 rounded-3xl border border-border bg-surface p-6"
+        className="min-w-0 rounded-3xl border border-border bg-surface p-4 sm:p-6"
       >
         <h2
           id="dados-pessoais-title"

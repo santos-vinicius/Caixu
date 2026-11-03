@@ -57,7 +57,7 @@ export default function ProximosMarcos() {
   return (
     <section
       aria-labelledby="marcos-title"
-      className="@container mt-6 rounded-3xl border border-border bg-surface p-5 sm:p-6"
+      className="@container mt-6 rounded-3xl border border-border bg-surface p-4 sm:p-6"
     >
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -135,54 +135,96 @@ export default function ProximosMarcos() {
           return (
             <li
               key={chave}
-              className={`flex min-w-0 flex-col rounded-xl border p-4 ${superficieClasse}`}
+              className={`min-w-0 rounded-xl border p-2.5 @[1000px]:flex @[1000px]:flex-col @[1000px]:p-4 ${superficieClasse}`}
             >
-              <p className="text-xs font-bold">{titulo}</p>
-
-              <time
-                dateTime={dia.data}
-                className={`mt-1 block text-sm ${secundarioClasse}`}
-              >
-                {formatarData(dia.data)}
-              </time>
-
-              {!atual && quantidade > 0 && (
-                <div className="mt-3">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 @[1000px]:hidden">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <p className="text-xs font-bold">
+                      {atual ? "Agora" : final ? "Fechamento" : titulo}
+                    </p>
+                    <time
+                      dateTime={dia.data}
+                      aria-label={formatarData(dia.data)}
+                      className={`text-xs ${secundarioClasse}`}
+                    >
+                      {formatarData(dia.data).slice(0, 5)}
+                    </time>
+                  </div>
+                  {!atual && !final && (
+                    <p
+                      className={`mt-1 text-xs font-semibold tabular-nums ${variacaoClasse}`}
+                    >
+                      {variacao > 0 ? "+" : ""}
+                      {formatarMoeda(variacao)}{" "}
+                      <span className={secundarioClasse}>no dia</span>
+                    </p>
+                  )}
+                </div>
+                <div className="min-w-0 max-w-36 text-right">
                   <p className={`text-xs ${secundarioClasse}`}>
-                    Resultado de {quantidade}{" "}
-                    {quantidade === 1 ? "movimento" : "movimentos"}
+                    {final ? "Saldo projetado" : "Saldo"}
+                  </p>
+                  <p
+                    className={`text-sm font-extrabold tabular-nums [overflow-wrap:anywhere] ${saldoClasse}`}
+                  >
+                    {formatarMoeda(dia.saldoAcumulado)}
+                  </p>
+                </div>
+                {entrouNoNegativo && (
+                  <p className="col-span-2 text-xs font-bold text-negative">
+                    Saldo passa a negativo
+                  </p>
+                )}
+              </div>
+              <div className="hidden h-full flex-col @[1000px]:flex">
+                <p className="text-xs font-bold">{titulo}</p>
+
+                <time
+                  dateTime={dia.data}
+                  className={`mt-1 block text-sm ${secundarioClasse}`}
+                >
+                  {formatarData(dia.data)}
+                </time>
+
+                {!atual && quantidade > 0 && (
+                  <div className="mt-3">
+                    <p className={`text-xs ${secundarioClasse}`}>
+                      Resultado de {quantidade}{" "}
+                      {quantidade === 1 ? "movimento" : "movimentos"}
+                    </p>
+
+                    <p
+                      className={`mt-1 text-sm font-bold tabular-nums ${variacaoClasse}`}
+                    >
+                      {variacao > 0 ? "+" : ""}
+                      {formatarMoeda(variacao)}
+                    </p>
+                  </div>
+                )}
+
+                <div className="mt-auto pt-4">
+                  <p className={`text-xs ${secundarioClasse}`}>
+                    {atual
+                      ? "Saldo acumulado"
+                      : final
+                        ? "Saldo projetado no fechamento"
+                        : "Saldo após o dia"}
                   </p>
 
                   <p
-                    className={`mt-1 text-sm font-bold tabular-nums ${variacaoClasse}`}
+                    className={`mt-1 wrap-break-word text-lg font-extrabold tabular-nums ${saldoClasse}`}
                   >
-                    {variacao > 0 ? "+" : ""}
-                    {formatarMoeda(variacao)}
+                    {formatarMoeda(dia.saldoAcumulado)}
                   </p>
                 </div>
-              )}
 
-              <div className="mt-auto pt-4">
-                <p className={`text-xs ${secundarioClasse}`}>
-                  {atual
-                    ? "Saldo acumulado"
-                    : final
-                      ? "Saldo projetado no fechamento"
-                      : "Saldo após o dia"}
-                </p>
-
-                <p
-                  className={`mt-1 wrap-break-word text-lg font-extrabold tabular-nums ${saldoClasse}`}
-                >
-                  {formatarMoeda(dia.saldoAcumulado)}
-                </p>
+                {entrouNoNegativo && (
+                  <p className="mt-3 rounded-lg bg-negative-background px-2 py-1.5 text-xs font-bold text-negative">
+                    Saldo passa a negativo
+                  </p>
+                )}
               </div>
-
-              {entrouNoNegativo && (
-                <p className="mt-3 rounded-lg bg-negative-background px-2 py-1.5 text-xs font-bold text-negative">
-                  Saldo passa a negativo
-                </p>
-              )}
             </li>
           );
         })}

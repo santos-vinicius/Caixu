@@ -70,17 +70,6 @@ export default function GerenciarCategorias() {
 
   return (
     <div className="mt-6">
-      {/* <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={abrirModal}
-          aria-haspopup="dialog"
-          className="min-h-12 rounded-xl bg-primary px-5 font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          + Nova categoria
-        </button>
-      </div> */}
-
       <p
         role="status"
         aria-live="polite"
@@ -100,7 +89,7 @@ export default function GerenciarCategorias() {
           aria-labelledby="suas-categorias-title"
           className="min-w-0 overflow-hidden rounded-3xl border border-border bg-surface"
         >
-          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
+          <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-5">
             <h2
               id="suas-categorias-title"
               className="font-heading text-xl font-extrabold"
@@ -110,10 +99,16 @@ export default function GerenciarCategorias() {
 
             <span className="inline-flex shrink-0 items-center rounded-lg border border-border px-3 py-1 text-xs font-semibold text-muted">
               {categorias.length}{" "}
-              {categorias.length === 1
-                ? "categoria cadastrada"
-                : "categorias cadastradas"}
+              {categorias.length === 1 ? "categoria" : "categorias"}
             </span>
+            <button
+              type="button"
+              onClick={abrirModal}
+              aria-haspopup="dialog"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:w-auto xl:hidden"
+            >
+              + Nova categoria
+            </button>
           </header>
 
           {categorias.length === 0 ? (
@@ -143,29 +138,25 @@ export default function GerenciarCategorias() {
                   return (
                     <li
                       key={categoria.id}
-                      className="flex flex-wrap items-center gap-3 px-5 py-4"
+                      className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-4 sm:px-5"
                     >
-                      <span
-                        className={`inline-flex min-h-9 shrink-0 items-center rounded-xl px-3 text-xs font-bold ${
-                          receita
-                            ? "bg-positive-background text-positive"
-                            : "bg-negative-background text-negative"
-                        }`}
-                      >
-                        {receita ? "Recebimento" : "Gasto"}
-                      </span>
-
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-bold wrap-break-word">
+                      <div className="min-w-0">
+                        <h3 className="font-bold [overflow-wrap:anywhere]">
                           {categoria.nomeCategoria}
                         </h3>
-
-                        <p className="mt-1 text-sm text-muted">
-                          {quantidade}{" "}
-                          {quantidade === 1
-                            ? "lançamento vinculado"
-                            : "lançamentos vinculados"}
-                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span
+                            className={`inline-flex items-center rounded-lg px-2 py-1 text-xs font-bold ${receita ? "bg-positive-background text-positive" : "bg-negative-background text-negative"}`}
+                          >
+                            {receita ? "Recebimento" : "Gasto"}
+                          </span>
+                          <p className="text-xs text-muted">
+                            {quantidade}{" "}
+                            {quantidade === 1
+                              ? "lançamento vinculado"
+                              : "lançamentos vinculados"}
+                          </p>
+                        </div>
                       </div>
 
                       <AcoesCategoria
@@ -181,7 +172,7 @@ export default function GerenciarCategorias() {
 
         <aside
           aria-labelledby="organizar-categorias-title"
-          className="rounded-3xl border border-border bg-raised p-6"
+          className="hidden rounded-3xl border border-border bg-raised p-6 xl:block"
         >
           <Image
             src="/images/caixu-organizar.svg"
@@ -238,7 +229,7 @@ export default function GerenciarCategorias() {
       <dialog
         ref={dialogRef}
         aria-labelledby="nova-categoria-title"
-        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
+        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
       >
         <h2
           id="nova-categoria-title"

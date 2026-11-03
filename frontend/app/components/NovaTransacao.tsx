@@ -132,14 +132,14 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
       <dialog
         ref={dialogRef}
         aria-labelledby="nova-transacao-title"
-        className="caixu-scrollbar fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl 
+        className="caixu-scrollbar fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-2xl
         overflow-y-auto rounded-3xl border border-border bg-surface text-foreground backdrop:bg-brand-plum/60"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-border p-6">
+        <header className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-6">
           <div>
             <h2
               id="nova-transacao-title"
-              className="font-heading text-2xl font-extrabold"
+              className="font-heading text-xl font-extrabold sm:text-2xl"
             >
               Nova transação
             </h2>
@@ -153,7 +153,7 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
             type="button"
             onClick={fecharModal}
             aria-label="Fechar nova transação"
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-border 
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-border
             text-xl text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             ×
@@ -161,7 +161,7 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
         </header>
 
         <form onSubmit={salvarTransacao}>
-          <div className="px-6 pb-6">
+          <div className="px-4 pb-4 sm:px-6 sm:pb-6">
             <fieldset className="mt-6">
               <legend className="text-sm font-bold">
                 O que você quer registrar?
@@ -169,7 +169,7 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
 
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <label
-                  className={`flex min-h-16 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 p-3 font-bold ${
+                  className={`flex min-h-12 min-w-0 cursor-pointer items-center justify-center gap-1 rounded-xl border-2 px-1 py-3 text-xs font-bold sm:min-h-16 sm:gap-2 sm:p-3 sm:text-base ${
                     tipoMovimento === "DESPESA"
                       ? "border-negative bg-negative-background text-negative"
                       : "border-border bg-surface text-muted"
@@ -187,7 +187,7 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
                 </label>
 
                 <label
-                  className={`flex min-h-16 cursor-pointer items-center justify-center gap-2 rounded-xl border-2 p-3 font-bold ${
+                  className={`flex min-h-12 min-w-0 cursor-pointer items-center justify-center gap-1 rounded-xl border-2 px-1 py-3 text-xs font-bold sm:min-h-16 sm:gap-2 sm:p-3 sm:text-base ${
                     tipoMovimento === "RECEITA"
                       ? "border-positive bg-positive-background text-positive"
                       : "border-border bg-surface text-muted"
@@ -269,18 +269,18 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
             )}
           </div>
 
-          <footer className="sticky bottom-0 z-10 flex flex-wrap justify-end gap-3 border-t border-border bg-surface px-6 py-4">
+          <footer className="sticky bottom-0 z-10 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end sm:gap-3 border-t border-border bg-surface px-4 py-4 sm:px-6">
             <button
               type="button"
               onClick={fecharModal}
-              className="min-h-12 rounded-xl border border-border px-5 font-bold text-primary 
+              className="min-h-12 min-w-0 rounded-xl border border-border px-2 text-sm font-bold sm:px-5 sm:text-base text-primary
               focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="min-h-12 rounded-xl bg-primary px-5 font-bold text-on-primary 
+              className="min-h-12 min-w-0 rounded-xl bg-primary px-2 text-sm font-bold sm:px-5 sm:text-base text-on-primary
               focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               {planejamento.modalidade === "UNICA"

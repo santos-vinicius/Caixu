@@ -15,13 +15,13 @@ export default function SaldoCard({
 }: SaldoCardProps) {
   return (
     <div
-      className={`rounded-3xl border border-border p-6 ${
+      className={`min-w-0 rounded-3xl border border-border p-4 sm:p-6 ${
         destaque ? "bg-surface" : "bg-background"
       }`}
     >
       <h2 className="text-sm font-bold text-muted">{titulo}</h2>
 
-      <p className="mt-3 text-3xl font-extrabold tabular-nums">
+      <p className="mt-3 text-3xl font-extrabold tabular-nums [overflow-wrap:anywhere]">
         {formatarMoeda(valor)}
       </p>
 

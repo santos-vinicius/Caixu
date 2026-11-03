@@ -65,7 +65,7 @@ export default function AcoesCategoria({
 
   return (
     <>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center justify-end gap-1">
         <button
           type="button"
           onClick={() => abrir("EDITAR")}
@@ -73,7 +73,19 @@ export default function AcoesCategoria({
           aria-label={`Editar categoria ${categoria.nomeCategoria}`}
           className="min-h-11 rounded-xl px-3 text-sm font-bold text-primary hover:bg-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          Editar
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-5 sm:hidden"
+          >
+            <path d="m16 3 5 5M4 20l4-1 13-13a2.1 2.1 0 0 0-5-5L3 14l-1 7Z" />
+          </svg>
+          <span className="hidden sm:inline">Editar</span>
         </button>
 
         <button
@@ -83,14 +95,26 @@ export default function AcoesCategoria({
           aria-label={`Excluir categoria ${categoria.nomeCategoria}`}
           className="min-h-11 rounded-xl px-3 text-sm font-bold text-negative hover:bg-negative-background focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-negative"
         >
-          Excluir
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-5 sm:hidden"
+          >
+            <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7" />
+          </svg>
+          <span className="hidden sm:inline">Excluir</span>
         </button>
       </div>
 
       <dialog
         ref={dialogRef}
         aria-labelledby={`${prefixo}-titulo`}
-        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
+        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
       >
         <h2
           id={`${prefixo}-titulo`}

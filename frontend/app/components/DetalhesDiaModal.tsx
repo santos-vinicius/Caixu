@@ -38,8 +38,8 @@ export default function DetalhesDiaModal({
         }
       }}
       aria-labelledby="detalhes-dia-title"
-      className="fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto 
-      rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
+      className="fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto
+      rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
     >
       <header className="flex items-start justify-between gap-4">
         <div>
@@ -57,7 +57,7 @@ export default function DetalhesDiaModal({
           type="button"
           onClick={() => dialogRef.current?.close()}
           aria-label="Fechar detalhes"
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-border 
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-border
           text-xl text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           ×
