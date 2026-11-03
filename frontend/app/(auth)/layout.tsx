@@ -9,19 +9,19 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           aria-labelledby="welcome-title"
           className="grid place-items-center bg-brand-plum p-7 text-brand-cream min-[621px]:p-12"
         >
-          <div className="w-full max-w-80">
+          <div className="w-full max-w-120">
             <Image
               src="/images/caixu-motion-horizontal-dark.svg"
               alt="Caixu"
               width={1000}
               height={400}
-              className="mb-7 h-auto w-full max-w-[320px]"
+              className="mb-10 h-auto w-full max-w-[320px]"
               unoptimized
             />
 
             <h2
               id="welcome-title"
-              className="font-heading text-[30px] leading-[1.12] font-extrabold tracking-tight min-[621px]:text-[38px]"
+              className="font-heading text-[30px] leading-[1.2] font-extrabold tracking-tight min-[621px]:text-[38px]"
             >
               Seu dinheiro em ordem.
               <br />

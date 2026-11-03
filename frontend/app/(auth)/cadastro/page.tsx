@@ -1,7 +1,65 @@
+"use client";
+
 import PasswordInput from "@/app/components/PasswordInput";
+import { cadastrarUsuario } from "@/app/lib/usuarios-api";
 import Link from "next/link";
+import { useState, type FormEvent } from "react";
 
 export default function CadastroPage() {
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (enviando || sucesso) return;
+
+    const formulario = event.currentTarget;
+    const campos = new FormData(formulario);
+
+    const nome = String(campos.get("nome") ?? "").trim();
+    const email = String(campos.get("email") ?? "").trim();
+    const senha = String(campos.get("senha") ?? "");
+    const saldoInicial = Number(campos.get("saldoInicial"));
+
+    setErro("");
+    setSucesso("");
+
+    if (!nome || !email || !senha.trim()) {
+      setErro("Preencha nome, e-mail e senha.");
+      return;
+    }
+
+    if (!Number.isFinite(saldoInicial)) {
+      setErro("Informe um saldo inicial válido.");
+      return;
+    }
+
+    setEnviando(true);
+
+    try {
+      await cadastrarUsuario({
+        nome,
+        email,
+        senha,
+        saldoInicial,
+      });
+
+      formulario.reset();
+
+      setSucesso("Conta criada com sucesso! Você já pode entrar.");
+    } catch (erro) {
+      setErro(
+        erro instanceof Error
+          ? erro.message
+          : "Não foi possível concluir o cadastro.",
+      );
+    } finally {
+      setEnviando(false);
+    }
+  }
+
   return (
     <section aria-labelledby="cadastro-title">
       <h1
@@ -15,7 +73,28 @@ export default function CadastroPage() {
         Comece a organizar suas finanças com o Caixu.
       </p>
 
-      <form className="flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        aria-busy={enviando}
+        className="flex flex-col gap-4"
+      >
+        {erro && (
+          <p
+            role="alert"
+            className="rounded-xl border border-negative bg-negative-background px-4 py-3 text-sm text-negative"
+          >
+            {erro}
+          </p>
+        )}
+
+        {sucesso && (
+          <p
+            role="status"
+            className="rounded-xl border border-positive bg-positive-background px-4 py-3 text-sm text-positive"
+          >
+            {sucesso}
+          </p>
+        )}
         <div className="flex flex-col gap-2">
           <label htmlFor="nome" className="text-sm font-bold">
             Nome
@@ -81,11 +160,15 @@ export default function CadastroPage() {
         </div>
 
         <button
-          type="button"
-          className="mt-2 h-12 w-full rounded-xl bg-primary px-5 font-bold text-on-primary
-          focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          type="submit"
+          disabled={enviando || Boolean(sucesso)}
+          className="mt-2 h-12 w-full rounded-xl bg-primary px-5 font-bold text-on-primary transition-opacity disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          Criar conta
+          {enviando
+            ? "Criando conta…"
+            : sucesso
+              ? "Conta criada"
+              : "Criar conta"}
         </button>
 
         <p className="mt-6 text-center text-sm text-muted">
