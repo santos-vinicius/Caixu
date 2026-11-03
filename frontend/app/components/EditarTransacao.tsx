@@ -3,7 +3,6 @@
 import { useRef, useState, type FormEvent } from "react";
 
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import { categoriasDemo } from "@/app/lib/categorias-demo";
 import type { TransacaoDemo } from "@/app/lib/demo-data";
 
 type EditarTransacaoProps = {
@@ -16,7 +15,7 @@ export default function EditarTransacao({
   onSaved,
 }: EditarTransacaoProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const { editarTransacao } = useTransacoes();
+  const { editarTransacao, categorias: todasCategorias } = useTransacoes();
 
   const [descricao, setDescricao] = useState(transacao.descricao);
   const [valor, setValor] = useState(String(transacao.valor));
@@ -28,7 +27,7 @@ export default function EditarTransacao({
 
   const prefixo = `editar-${transacao.id}`;
 
-  const categorias = categoriasDemo.filter(
+  const categorias = todasCategorias.filter(
     (categoria) => categoria.tipoCategoria === transacao.tipoMovimento,
   );
 

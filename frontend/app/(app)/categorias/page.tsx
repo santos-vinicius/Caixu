@@ -1,3 +1,5 @@
+import GerenciarCategorias from "@/app/components/GerenciarCategorias";
+
 export default function CategoriasPage() {
   return (
     <section aria-labelledby="categorias-title">
@@ -11,6 +13,8 @@ export default function CategoriasPage() {
       <p className="mt-2 text-muted">
         Crie categorias para suas receitas e despesas.
       </p>
+
+      <GerenciarCategorias />
     </section>
   );
 }

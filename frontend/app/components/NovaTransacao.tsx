@@ -3,8 +3,6 @@
 import { FormEvent, useRef, useState } from "react";
 
 import PlanejamentoTransacao from "@/app/components/PlanejamentoTransacao";
-import { categoriasDemo } from "../lib/categorias-demo";
-
 import { useTransacoes } from "@/app/components/TransacoesProvider";
 import {
   criarPlanejamentoInicial,
@@ -30,14 +28,14 @@ export default function NovaTransacao() {
   const [descricao, setDescricao] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
 
-  const { adicionarTransacoes } = useTransacoes();
+  const { adicionarTransacoes, categorias } = useTransacoes();
 
   const [planejamento, setPlanejamento] = useState(criarPlanejamentoInicial);
 
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
 
-  const categoriasDisponiveis = categoriasDemo.filter(
+  const categoriasDisponiveis = categorias.filter(
     (categoria) => categoria.tipoCategoria === tipoMovimento,
   );
 
