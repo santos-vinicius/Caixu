@@ -37,7 +37,7 @@ export default function DetalhesDiaModal({
         }
       }}
       aria-labelledby="detalhes-dia-title"
-      className="fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto 
+      className="fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto 
       rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
     >
       <header className="flex items-start justify-between gap-4">
@@ -78,7 +78,9 @@ export default function DetalhesDiaModal({
                 className="flex flex-wrap items-center justify-between gap-3 py-4"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold break-words">{transacao.descricao}</p>
+                  <p className="font-bold wrap-break-word">
+                    {transacao.descricao}
+                  </p>
 
                   <p className="text-sm text-muted">
                     {receita ? "Receita" : "Despesa"}

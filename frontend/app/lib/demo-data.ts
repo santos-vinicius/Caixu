@@ -4,6 +4,12 @@ export type TransacaoDemo = {
   valor: number;
   dataTransacao: string;
   tipoMovimento: "RECEITA" | "DESPESA";
+  categoriaId?: number;
+  modalidade?: "UNICA" | "RECORRENTE" | "PARCELADA";
+  grupoId?: string;
+  numeroOcorrencia?: number;
+  totalOcorrencias?: number;
+  frequencia?: "MENSAL" | "SEMANAL";
 };
 
 export const dataReferencia = "2026-11-02";

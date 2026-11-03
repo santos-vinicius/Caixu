@@ -3,15 +3,13 @@
 import { useState } from "react";
 
 import DetalhesDiaModal from "@/app/components/DetalhesDiaModal";
+import { useTransacoes } from "@/app/components/TransacoesProvider";
 import { gerarCalendario } from "@/app/lib/calendario";
-import {
-  dataReferencia,
-  saldoInicial,
-  transacoesDemo,
-} from "@/app/lib/demo-data";
+import { dataReferencia, saldoInicial } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
 
 export default function CalendarioFinanceiro() {
+  const { transacoes } = useTransacoes();
   const [anoInicial, mesInicial] = dataReferencia.split("-").map(Number);
 
   const [periodo, setPeriodo] = useState({
@@ -21,14 +19,14 @@ export default function CalendarioFinanceiro() {
 
   const [diaSelecionado, setDiaSelecionado] = useState<string | null>(null);
 
-  const movimentacoesSelecionadas = transacoesDemo.filter(
+  const movimentacoesSelecionadas = transacoes.filter(
     (transacao) => transacao.dataTransacao === diaSelecionado,
   );
 
   const dias = gerarCalendario({
     ...periodo,
     saldoInicial,
-    transacoes: transacoesDemo,
+    transacoes: transacoes,
     dataReferencia,
   });
 
@@ -173,7 +171,7 @@ export default function CalendarioFinanceiro() {
             const referencia = dia.data === dataReferencia;
             const selecionado = diaSelecionado === dia.data;
 
-            const quantidade = transacoesDemo.filter(
+            const quantidade = transacoes.filter(
               (transacao) => transacao.dataTransacao === dia.data,
             ).length;
 

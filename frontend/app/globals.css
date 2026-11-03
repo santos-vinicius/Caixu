@@ -21,6 +21,8 @@
   --negative: #8b3656;
   --positive-background: #e2eee5;
   --negative-background: #f7e1e8;
+
+  --raised: #f5e8ee;
 }
 
 @theme inline {
@@ -46,6 +48,8 @@
   --color-positive-background: var(--positive-background);
   --color-negative-background: var(--negative-background);
 
+  --color-raised: var(--raised);
+
   --font-sans: var(--font-nunito-sans);
   --font-heading: var(--font-nunito);
 }
@@ -54,4 +58,25 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
+}
+
+.caixu-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--surface);
+}
+
+.caixu-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.caixu-scrollbar::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 999px;
+}
+
+.caixu-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border: 2px solid var(--surface);
+  border-radius: 999px;
 }

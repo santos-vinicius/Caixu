@@ -2,46 +2,54 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import AppNavigation from "../components/AppNavigation";
 import Logo from "../components/Logo";
+import TransacoesProvider from "../components/TransacoesProvider";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
-      <a
-        href="#app-content"
-        className="sr-only rounded-xl bg-primary px-4 py-3 font-bold text-on-primary 
+    <TransacoesProvider>
+      <div className="min-h-screen lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
+        <a
+          href="#app-content"
+          className="sr-only rounded-xl bg-primary px-4 py-3 font-bold text-on-primary 
         focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50"
-      >
-        Ir para o conteúdo
-      </a>
-
-      <aside
-        className="border-b border-border bg-surface p-6 
-        lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:border-r lg:border-b-0
-      "
-      >
-        <Link
-          href="/dashboard"
-          aria-label="Caixu - Visão Geral"
-          className="inline-block rounded focus-visible:outline-2 
-          focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          <Logo />
-        </Link>
+          Ir para o conteúdo
+        </a>
 
-        <div className="mt-6 lg:mt-10">
-          <AppNavigation />
-        </div>
+        <aside
+          className="border-b border-border bg-surface px-4 py-5 lg:sticky lg:top-0 
+      lg:flex lg:h-dvh lg:flex-col lg:overflow-y-auto lg:border-r lg:border-b-0 lg:px-5 lg:py-8"
+        >
+          <Link
+            href="/dashboard"
+            aria-label="Caixu - Visão Geral"
+            className="inline-block self-start rounded px-3 focus-visible:outline-2 
+          focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <Logo />
+          </Link>
 
-        <p className="mt-auto hidden pt-8 text-sm leading-relaxed text-muted lg:block">
-          Um passo de cada vez.
-          <br />
-          Tudo mais claro.
-        </p>
-      </aside>
+          <div className="mt-6 lg:mt-10">
+            <AppNavigation />
+          </div>
 
-      <main id="app-content" tabIndex={-1} className="min-w-0 p-6 lg:p-10">
-        <div className="mx-auto w-full max-w-7xl">{children}</div>
-      </main>
-    </div>
+          <div className="mt-auto hidden pt-8 lg:block">
+            <div className="rounded-2xl border border-border bg-background p-4">
+              <p className="font-heading text-sm font-extrabold">
+                Um passo de cada vez.
+              </p>
+
+              <p className="mt-1 text-xs leading-relaxed text-muted">
+                Seu dinheiro, com mais clareza.
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        <main id="app-content" tabIndex={-1} className="min-w-0 p-6 lg:p-10">
+          <div className="mx-auto w-full max-w-7xl">{children}</div>
+        </main>
+      </div>
+    </TransacoesProvider>
   );
 }

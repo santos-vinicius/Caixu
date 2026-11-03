@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           aria-labelledby="welcome-title"
           className="grid place-items-center bg-brand-plum p-7 text-brand-cream min-[621px]:p-12"
         >
-          <div className="w-full max-w-[480px]">
+          <div className="w-full max-w-120">
             <Image
               src="/images/caixu-motion-horizontal-dark.svg"
               alt="Caixu"
