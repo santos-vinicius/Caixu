@@ -3,7 +3,11 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 import { categoriasDemo } from "@/app/lib/categorias-demo";
-import { transacoesDemo, type TransacaoDemo } from "@/app/lib/demo-data";
+import {
+  saldoInicial as saldoInicialDemo,
+  transacoesDemo,
+  type TransacaoDemo,
+} from "@/app/lib/demo-data";
 import { CategoriaDemo } from "../lib/categorias-demo";
 import {
   selecionarParaExclusao,
@@ -16,6 +20,13 @@ export type AtualizacaoTransacao = Pick<
   "descricao" | "valor" | "dataTransacao" | "categoriaId"
 >;
 
+export type UsuarioDemo = {
+  id: number;
+  nome: string;
+  email: string;
+  saldoInicial: number;
+};
+
 type TransacoesContextValue = {
   transacoes: TransacaoDemo[];
   adicionarTransacoes: (novas: NovaTransacaoDemo[]) => void;
@@ -25,6 +36,8 @@ type TransacoesContextValue = {
   adicionarCategoria: (nome: string, tipo: "RECEITA" | "DESPESA") => void;
   renomearCategoria: (id: number, nome: string) => string | null;
   excluirCategoria: (id: number) => void;
+  usuario: UsuarioDemo;
+  atualizarUsuario: (dados: Omit<UsuarioDemo, "id">) => void;
 };
 
 const TransacoesContext = createContext<TransacoesContextValue | undefined>(
@@ -38,6 +51,13 @@ export default function TransacoesProvider({
 }) {
   const [transacoes, setTransacoes] = useState<TransacaoDemo[]>(transacoesDemo);
   const [categorias, setCategorias] = useState<CategoriaDemo[]>(categoriasDemo);
+  const [usuario, setUsuario] = useState<UsuarioDemo>({
+    id: 1,
+    nome: "Usuário de demonstração",
+    email: "teste.caixu@fiap.local",
+    saldoInicial: saldoInicialDemo,
+  });
+
   function adicionarTransacoes(novas: NovaTransacaoDemo[]) {
     const criadoEm = new Date().toISOString();
     setTransacoes((atuais) => {
@@ -161,6 +181,13 @@ export default function TransacoesProvider({
     );
   }
 
+  function atualizarUsuario(dados: Omit<UsuarioDemo, "id">) {
+    setUsuario((atual) => ({
+      ...atual,
+      ...dados,
+    }));
+  }
+
   return (
     <TransacoesContext.Provider
       value={{
@@ -172,6 +199,8 @@ export default function TransacoesProvider({
         adicionarCategoria,
         renomearCategoria,
         excluirCategoria,
+        usuario,
+        atualizarUsuario,
       }}
     >
       {children}

@@ -3,11 +3,12 @@ import Link from "next/link";
 
 import SaldoCard from "@/app/components/SaldoCard";
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import { dataReferencia, saldoInicial } from "@/app/lib/demo-data";
+import { dataReferencia } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
 
 export default function DashboardPage() {
-  const { transacoes } = useTransacoes();
+  const { transacoes, usuario } = useTransacoes();
+  const saldoInicial = usuario.saldoInicial;
 
   function calcularSaldo(registros: typeof transacoes) {
     const centavos = registros.reduce(
@@ -41,6 +42,8 @@ export default function DashboardPage() {
     )
     .sort((a, b) => a.dataTransacao.localeCompare(b.dataTransacao));
 
+  const primeiroNome = usuario.nome.trim().split(/\s+/)[0];
+
   return (
     <section aria-labelledby="dashboard-title">
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
@@ -49,8 +52,10 @@ export default function DashboardPage() {
             id="dashboard-title"
             className="font-heading text-3xl font-extrabold"
           >
-            Seu mês, mais claro.
+            Olá, {primeiroNome}!
           </h1>
+
+          <p className="mt-2 text-muted">Seu mês, mais claro.</p>
 
           <p className="mt-2 text-muted">
             Dados de demonstração · Referência: {formatarData(dataReferencia)}

@@ -1,3 +1,5 @@
+import PerfilUsuario from "@/app/components/PerfilUsuario";
+
 export default function PerfilPage() {
   return (
     <section aria-labelledby="perfil-title">
@@ -6,6 +8,7 @@ export default function PerfilPage() {
       </h1>
 
       <p className="mt-2 text-muted">Confira e atualize seus dados da conta.</p>
+      <PerfilUsuario />
     </section>
   );
 }

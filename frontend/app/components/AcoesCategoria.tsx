@@ -90,7 +90,7 @@ export default function AcoesCategoria({
       <dialog
         ref={dialogRef}
         aria-labelledby={`${prefixo}-titulo`}
-        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
+        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
       >
         <h2
           id={`${prefixo}-titulo`}
@@ -121,7 +121,9 @@ export default function AcoesCategoria({
             </div>
           ) : (
             <div className="space-y-3">
-              <p className="font-bold break-words">{categoria.nomeCategoria}</p>
+              <p className="font-bold wrap-break-word">
+                {categoria.nomeCategoria}
+              </p>
 
               <p className="text-sm text-muted">
                 {vinculadas === 0

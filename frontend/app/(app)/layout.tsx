@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import AppNavigation from "../components/AppNavigation";
 import Logo from "../components/Logo";
 import TransacoesProvider from "../components/TransacoesProvider";
+import UsuarioSidebar from "../components/UsuarioSidebar";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
@@ -33,14 +34,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <AppNavigation />
           </div>
 
+          <div className="mt-6 lg:mt-auto lg:pt-8">
+            <UsuarioSidebar />
+          </div>
           <div className="mt-auto hidden pt-8 lg:block">
             <div className="rounded-2xl border border-border bg-background p-4">
-              <p className="font-heading text-sm font-extrabold">
-                Um passo de cada vez.
-              </p>
-
-              <p className="mt-1 text-xs leading-relaxed text-muted">
-                Seu dinheiro, com mais clareza.
+              <p className="font-heading text-sm font-extrabold text-center">
+                Projeto em Desenvolvimento
               </p>
             </div>
           </div>

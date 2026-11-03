@@ -5,11 +5,12 @@ import { useState } from "react";
 import DetalhesDiaModal from "@/app/components/DetalhesDiaModal";
 import { useTransacoes } from "@/app/components/TransacoesProvider";
 import { gerarCalendario } from "@/app/lib/calendario";
-import { dataReferencia, saldoInicial } from "@/app/lib/demo-data";
+import { dataReferencia } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
 
 export default function CalendarioFinanceiro() {
-  const { transacoes } = useTransacoes();
+  const { transacoes, usuario } = useTransacoes();
+  const saldoInicial = usuario.saldoInicial;
   const [anoInicial, mesInicial] = dataReferencia.split("-").map(Number);
 
   const [periodo, setPeriodo] = useState({

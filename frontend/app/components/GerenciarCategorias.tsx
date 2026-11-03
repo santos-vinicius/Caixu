@@ -146,7 +146,7 @@ export default function GerenciarCategorias() {
                       </span>
 
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-bold break-words">
+                        <h3 className="font-bold wrap-break-word">
                           {categoria.nomeCategoria}
                         </h3>
 
@@ -223,7 +223,7 @@ export default function GerenciarCategorias() {
       <dialog
         ref={dialogRef}
         aria-labelledby="nova-categoria-title"
-        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
+        className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-6 text-foreground backdrop:bg-brand-plum/60"
       >
         <h2
           id="nova-categoria-title"
