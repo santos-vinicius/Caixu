@@ -27,7 +27,7 @@ export const transacoesDemo: TransacaoDemo[] = [
   {
     id: 3,
     descricao: "Aluguel",
-    valor: 1200,
+    valor: 4000,
     dataTransacao: "2026-11-05",
     tipoMovimento: "DESPESA",
   },

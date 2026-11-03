@@ -11,6 +11,16 @@
   --brand-plum: #241b2f;
   --brand-cream: #fff4ea;
   --dark-muted: #c7b2c6;
+
+  --income: #75521f;
+  --expense: #713a50;
+  --planned-background: #f8e7c4;
+  --planned-text: #75521f;
+
+  --positive: #355d49;
+  --negative: #8b3656;
+  --positive-background: #e2eee5;
+  --negative-background: #f7e1e8;
 }
 
 @theme inline {
@@ -25,6 +35,16 @@
   --color-brand-plum: var(--brand-plum);
   --color-brand-cream: var(--brand-cream);
   --color-dark-muted: var(--dark-muted);
+
+  --color-income: var(--income);
+  --color-expense: var(--expense);
+  --color-planned-background: var(--planned-background);
+  --color-planned-text: var(--planned-text);
+
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-positive-background: var(--positive-background);
+  --color-negative-background: var(--negative-background);
 
   --font-sans: var(--font-nunito-sans);
   --font-heading: var(--font-nunito);

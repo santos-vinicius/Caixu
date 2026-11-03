@@ -1,3 +1,5 @@
+import CalendarioFinanceiro from "@/app/components/CalendarioFinanceiro";
+
 export default function CalendarioPage() {
   return (
     <section aria-labelledby="calendario-title">
@@ -9,9 +11,10 @@ export default function CalendarioPage() {
       </h1>
 
       <p className="mt-2 text-muted">
-        Uma visão diária para acompanhar o que já aconteceu e o que vem pela
-        frente.
+        Acompanhe suas movimentações e veja o que vem pela frente.
       </p>
+
+      <CalendarioFinanceiro />
     </section>
   );
 }
