@@ -10,6 +10,7 @@ export type TransacaoDemo = {
   numeroOcorrencia?: number;
   totalOcorrencias?: number;
   frequencia?: "MENSAL" | "SEMANAL";
+  criadoEm?: string;
 };
 
 export const dataReferencia = "2026-11-02";

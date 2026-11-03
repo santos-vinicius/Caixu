@@ -6,11 +6,24 @@ import { dataReferencia } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "../lib/formatters";
 import { useTransacoes } from "./TransacoesProvider";
 
+import { useRef } from "react";
+import EditarTransacao from "./EditarTransacao";
+import ExcluirTransacao from "./ExcluirTransacao";
+
 export default function ListaTransacoes() {
   const [busca, setBusca] = useState("");
   const [tipo, setTipo] = useState("TODOS");
   const [periodo, setPeriodo] = useState("TODOS");
   const { transacoes } = useTransacoes();
+  const [mensagem, setMensagem] = useState("");
+  const resultadoRef = useRef<HTMLParagraphElement>(null);
+  const [ordenacao, setOrdenacao] = useState<Ordenacao>("PROXIMAS");
+  const [hoje] = useState(obterHojeLocal);
+
+  function informarAlteracao(texto: string) {
+    setMensagem(texto);
+    resultadoRef.current?.focus();
+  }
 
   function normalizarTexto(texto: string) {
     return texto
@@ -38,16 +51,75 @@ export default function ListaTransacoes() {
 
       return correspondeBusca && correspondeTipo && correspondePeriodo;
     })
-    .sort(
-      (a, b) => b.dataTransacao.localeCompare(a.dataTransacao) || b.id - a.id,
-    );
+    .sort((a, b) => {
+      if (ordenacao === "ADICIONADAS") {
+        return (
+          (b.criadoEm ?? "").localeCompare(a.criadoEm ?? "") || b.id - a.id
+        );
+      }
+
+      if (ordenacao === "DATA_ASC") {
+        return a.dataTransacao.localeCompare(b.dataTransacao) || a.id - b.id;
+      }
+
+      if (ordenacao === "DATA_DESC") {
+        return b.dataTransacao.localeCompare(a.dataTransacao) || b.id - a.id;
+      }
+
+      const referencia = converterDataParaNumero(hoje);
+
+      const distanciaA = Math.abs(
+        converterDataParaNumero(a.dataTransacao) - referencia,
+      );
+
+      const distanciaB = Math.abs(
+        converterDataParaNumero(b.dataTransacao) - referencia,
+      );
+
+      return (
+        distanciaA - distanciaB ||
+        b.dataTransacao.localeCompare(a.dataTransacao) ||
+        b.id - a.id
+      );
+    });
 
   const campoClasse =
     "h-12 w-full rounded-xl border-2 border-border bg-surface px-3 text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
+  type Ordenacao = "PROXIMAS" | "ADICIONADAS" | "DATA_ASC" | "DATA_DESC";
+
+  function obterHojeLocal() {
+    const hoje = new Date();
+
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  function converterDataParaNumero(data: string) {
+    const [ano, mes, dia] = data.split("-").map(Number);
+    return Date.UTC(ano, mes - 1, dia);
+  }
+
   return (
     <div className="mt-6">
-      <div className="grid gap-4 md:grid-cols-3">
+      <p
+        ref={resultadoRef}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        tabIndex={-1}
+        className={
+          mensagem
+            ? "mb-4 rounded-xl border border-positive bg-positive-background p-4 text-sm font-bold text-positive focus:outline-2 focus:outline-offset-2 focus:outline-positive"
+            : "sr-only"
+        }
+      >
+        {mensagem}
+      </p>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="flex flex-col gap-2">
           <label htmlFor="busca-transacoes" className="text-sm font-bold">
             Buscar descrição
@@ -94,6 +166,24 @@ export default function ListaTransacoes() {
             <option value="TODOS">Todas as datas</option>
             <option value="ATE_REFERENCIA">Até a data de referência</option>
             <option value="FUTURAS">Datas futuras</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="ordenacao-transacoes" className="text-sm font-bold">
+            Ordenar por
+          </label>
+
+          <select
+            id="ordenacao-transacoes"
+            value={ordenacao}
+            onChange={(event) => setOrdenacao(event.target.value as Ordenacao)}
+            className={campoClasse}
+          >
+            <option value="PROXIMAS">Mais próximas de hoje</option>
+            <option value="ADICIONADAS">Últimas adicionadas</option>
+            <option value="DATA_ASC">Data: antigas primeiro</option>
+            <option value="DATA_DESC">Data: futuras primeiro</option>
           </select>
         </div>
       </div>
@@ -163,6 +253,18 @@ export default function ListaTransacoes() {
                 >
                   {receita ? "+" : "−"} {formatarMoeda(transacao.valor)}
                 </p>
+
+                <div className="flex items-center gap-1">
+                  <EditarTransacao
+                    transacao={transacao}
+                    onSaved={informarAlteracao}
+                  />
+
+                  <ExcluirTransacao
+                    transacao={transacao}
+                    onDeleted={informarAlteracao}
+                  />
+                </div>
               </li>
             );
           })}
