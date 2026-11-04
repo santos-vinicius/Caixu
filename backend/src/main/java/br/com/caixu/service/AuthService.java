@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
+    private final SenhaService senhaService;
 
-    public AuthService(UsuarioRepository usuarioRepository) {
+    public AuthService(UsuarioRepository usuarioRepository, SenhaService senhaService) {
         this.usuarioRepository = usuarioRepository;
+        this.senhaService = senhaService;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -24,7 +26,7 @@ public class AuthService {
                                 "E-mail ou senha inválidos"
                         ));
 
-        if (!usuario.getSenha().equals(request.getSenha())) {
+        if (!senhaService.verificar(request.getSenha(), usuario.getSenha())) {
             throw new InvalidCredentialsException(
                     "E-mail ou senha inválidos"
             );

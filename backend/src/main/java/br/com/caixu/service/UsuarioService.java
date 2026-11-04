@@ -13,9 +13,11 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final SenhaService senhaService;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, SenhaService senhaService) {
         this.usuarioRepository = usuarioRepository;
+        this.senhaService = senhaService;
     }
 
     public List<UsuarioResponse> listarTodos() {
@@ -38,7 +40,7 @@ public class UsuarioService {
 
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
-        usuario.setSenha(request.getSenha());
+        usuario.setSenha(senhaService.gerarHash(request.getSenha()));
         usuario.setSaldoInicial(request.getSaldoInicial());
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
@@ -56,7 +58,7 @@ public class UsuarioService {
 
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
-        usuario.setSenha(request.getSenha());
+        usuario.setSenha(senhaService.gerarHash(request.getSenha()));
         usuario.setSaldoInicial(request.getSaldoInicial());
 
         Usuario usuarioAtualizado = usuarioRepository.save(usuario);
