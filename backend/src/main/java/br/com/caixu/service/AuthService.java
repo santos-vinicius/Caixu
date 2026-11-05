@@ -13,7 +13,10 @@ public class AuthService {
     private final UsuarioRepository usuarioRepository;
     private final SenhaService senhaService;
 
-    public AuthService(UsuarioRepository usuarioRepository, SenhaService senhaService) {
+    public AuthService(
+            UsuarioRepository usuarioRepository,
+            SenhaService senhaService
+    ) {
         this.usuarioRepository = usuarioRepository;
         this.senhaService = senhaService;
     }
@@ -24,13 +27,29 @@ public class AuthService {
                 .orElseThrow(() ->
                         new InvalidCredentialsException(
                                 "E-mail ou senha inválidos"
-                        ));
+                        )
+                );
 
         if (!senhaService.verificar(request.getSenha(), usuario.getSenha())) {
             throw new InvalidCredentialsException(
                     "E-mail ou senha inválidos"
             );
         }
+
+        return new LoginResponse(
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail()
+        );
+    }
+
+    public LoginResponse buscarUsuarioDaSessao(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() ->
+                        new InvalidCredentialsException(
+                                "Sessão inválida. Faça login novamente."
+                        )
+                );
 
         return new LoginResponse(
                 usuario.getId(),

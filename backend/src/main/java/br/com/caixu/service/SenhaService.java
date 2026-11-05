@@ -43,7 +43,7 @@ public class SenhaService {
             byte[] salt = decoder.decode(partes[1]);
             byte[] hashSalvo = decoder.decode(partes[2]);
 
-            if (salt.length != BYTES_SALT || hashSalvo.length != BITS_HASH) {
+            if (salt.length != BYTES_SALT || hashSalvo.length != BITS_HASH / 8) {
                 return false;
             }
 
