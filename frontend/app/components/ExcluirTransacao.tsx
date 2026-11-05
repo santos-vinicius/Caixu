@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import type { TransacaoDemo } from "@/app/lib/demo-data";
+import type { Transacao } from "@/app/lib/transacoes";
 import {
   selecionarParaExclusao,
   type EscopoExclusao,
@@ -11,7 +11,7 @@ import {
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
 
 type ExcluirTransacaoProps = {
-  transacao: TransacaoDemo;
+  transacao: Transacao;
   onDeleted: (mensagem: string) => void;
 };
 
@@ -22,6 +22,9 @@ export default function ExcluirTransacao({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelarRef = useRef<HTMLButtonElement>(null);
 
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState("");
+  const operacaoEmAndamento = useRef(false);
   const [escopo, setEscopo] = useState<EscopoExclusao>("SOMENTE_ESTA");
 
   const { transacoes, excluirTransacao } = useTransacoes();
@@ -43,20 +46,28 @@ export default function ExcluirTransacao({
 
   function abrirModal() {
     setEscopo("SOMENTE_ESTA");
+    setErro("");
     dialogRef.current?.showModal();
     cancelarRef.current?.focus();
   }
 
-  function confirmarExclusao() {
-    dialogRef.current?.close();
-
-    onDeleted(
-      quantidade === 1
+  async function confirmarExclusao() {
+    if (operacaoEmAndamento.current) return;
+    operacaoEmAndamento.current = true;
+    setSalvando(true);
+    setErro("");
+    try {
+      await excluirTransacao(transacao.id, escopo);
+      dialogRef.current?.close();
+      onDeleted(quantidade === 1
         ? "Lançamento excluído. Os saldos foram atualizados."
-        : `${quantidade} lançamentos excluídos. Os saldos foram atualizados.`,
-    );
-
-    excluirTransacao(transacao.id, escopo);
+        : `${quantidade} lançamentos excluídos. Os saldos foram atualizados.`);
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível excluir o lançamento.");
+    } finally {
+      operacaoEmAndamento.current = false;
+      setSalvando(false);
+    }
   }
 
   return (
@@ -75,6 +86,7 @@ export default function ExcluirTransacao({
 
       <dialog
         ref={dialogRef}
+        onCancel={(event) => { if (salvando) event.preventDefault(); }}
         aria-labelledby={tituloId}
         aria-describedby={descricaoId}
         className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
@@ -111,7 +123,7 @@ export default function ExcluirTransacao({
         </div>
 
         {proximas.length > 1 && (
-          <fieldset className="mt-5">
+          <fieldset disabled={salvando} className="mt-5">
             <legend className="text-sm font-bold">O que deseja excluir?</legend>
 
             <div className="mt-3 space-y-3">
@@ -156,9 +168,11 @@ export default function ExcluirTransacao({
             : `${quantidade} lançamentos serão excluídos.`}
         </p>
 
+        {erro && <p role="alert" className="mt-4 text-sm font-bold text-negative">{erro}</p>}
         <footer className="mt-6 flex flex-wrap justify-end gap-3">
           <button
             ref={cancelarRef}
+            disabled={salvando}
             type="button"
             onClick={() => dialogRef.current?.close()}
             className="min-h-12 rounded-xl border border-border px-4 font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -169,9 +183,10 @@ export default function ExcluirTransacao({
           <button
             type="button"
             onClick={confirmarExclusao}
+            disabled={salvando}
             className="min-h-12 rounded-xl bg-negative px-4 font-bold text-brand-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-negative"
           >
-            Excluir {quantidade === 1 ? "lançamento" : "lançamentos"}
+            {salvando ? "Excluindo..." : `Excluir ${quantidade === 1 ? "lançamento" : "lançamentos"}`}
           </button>
         </footer>
       </dialog>

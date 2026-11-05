@@ -56,7 +56,7 @@ export default function DashboardPage() {
           actions={<NovaTransacao />}
         />
         <p className="mt-3 text-xs text-muted">
-          Dados de demonstração · Referência: {formatarData(dataReferencia)}
+          Atualizado para {formatarData(dataReferencia)}
         </p>
       </div>
       {/* cards de saldo */}

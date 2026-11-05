@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { listarCategorias, type Categoria } from "../lib/categorias-api";
 import TransacoesProvider from "./TransacoesProvider";
+import { listarTransacoes } from "@/app/lib/transacoes-api";
+import type { Transacao } from "@/app/lib/transacoes";
 
 export default function AcessoAutenticado({
   children,
@@ -15,6 +17,7 @@ export default function AcessoAutenticado({
   const router = useRouter();
   const [usuario, setUsuario] = useState<UsuarioResponse | null>(null);
   const [erro, setErro] = useState("");
+  const [transacoes, setTransacoes] = useState<Transacao[] | null>(null);
   const [categorias, setCategorias] = useState<Categoria[] | null>(null);
 
   useEffect(() => {
@@ -44,13 +47,16 @@ export default function AcessoAutenticado({
           return;
         }
 
-        const categoriasCarregadas = await listarCategorias();
+        const [categoriasCarregadas, transacoesCarregadas] = await Promise.all([
+          listarCategorias(), listarTransacoes(),
+        ]);
 
         if (!ativo) {
           return;
         }
 
         setCategorias(categoriasCarregadas);
+        setTransacoes(transacoesCarregadas);
         setUsuario(dados);
       } catch (error) {
         if (ativo) {
@@ -90,7 +96,7 @@ export default function AcessoAutenticado({
     );
   }
 
-  if (!usuario || categorias === null) {
+  if (!usuario || categorias === null || transacoes === null) {
     return (
       <p role="status" className="p-6 text-sm text-muted">
         Carregando sua conta…
@@ -103,6 +109,7 @@ export default function AcessoAutenticado({
       key={usuario.id}
       usuarioInicial={usuario}
       categoriasIniciais={categorias}
+      transacoesIniciais={transacoes}
     >
       {children}
     </TransacoesProvider>

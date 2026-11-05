@@ -63,6 +63,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <span aria-hidden="true">↗</span>
               <span className="sr-only"> — abre em uma nova aba</span>
             </a>
+            <BotaoSair />
           </div>
         </aside>
 
@@ -71,14 +72,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           tabIndex={-1}
           className="min-w-0 px-4 pt-5 pb-[calc(6rem_+_env(safe-area-inset-bottom))] sm:px-6 lg:p-10"
         >
-          <p
-            className="mx-auto mb-4 max-w-7xl rounded-xl border border-border
-    bg-surface px-4 py-3 text-sm text-muted"
-          >
-            Conta e categorias conectadas. As transações ainda usam dados de
-            demonstração, e os saldos calculados são ilustrativos nesta etapa.
-          </p>
-          <BotaoSair />
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
         <MobileNavigation />

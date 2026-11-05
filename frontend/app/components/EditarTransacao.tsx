@@ -3,10 +3,10 @@
 import { useRef, useState, type FormEvent } from "react";
 
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import type { TransacaoDemo } from "@/app/lib/demo-data";
+import type { Transacao } from "@/app/lib/transacoes";
 
 type EditarTransacaoProps = {
-  transacao: TransacaoDemo;
+  transacao: Transacao;
   onSaved: (mensagem: string) => void;
 };
 
@@ -24,6 +24,8 @@ export default function EditarTransacao({
     String(transacao.categoriaId ?? ""),
   );
   const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const operacaoEmAndamento = useRef(false);
 
   const prefixo = `editar-${transacao.id}`;
 
@@ -43,8 +45,9 @@ export default function EditarTransacao({
     dialogRef.current?.showModal();
   }
 
-  function salvar(event: FormEvent<HTMLFormElement>) {
+  async function salvar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (operacaoEmAndamento.current) return;
     setErro("");
 
     const valorNumerico = Number(valor.replace(",", "."));
@@ -68,7 +71,10 @@ export default function EditarTransacao({
       return;
     }
 
-    editarTransacao(transacao.id, {
+    operacaoEmAndamento.current = true;
+    setSalvando(true);
+    try {
+    await editarTransacao(transacao.id, {
       descricao:
         descricao.trim() ||
         categoria?.nomeCategoria ||
@@ -80,6 +86,12 @@ export default function EditarTransacao({
 
     dialogRef.current?.close();
     onSaved("Lançamento atualizado. Os saldos foram recalculados.");
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível atualizar o lançamento.");
+    } finally {
+      operacaoEmAndamento.current = false;
+      setSalvando(false);
+    }
   }
 
   return (
@@ -96,6 +108,7 @@ export default function EditarTransacao({
 
       <dialog
         ref={dialogRef}
+        onCancel={(event) => { if (salvando) event.preventDefault(); }}
         aria-labelledby={`${prefixo}-titulo`}
         className="caixu-scrollbar fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-lg overflow-y-auto rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
       >
@@ -111,7 +124,8 @@ export default function EditarTransacao({
           parcelas ou repetições serão mantidas.
         </p>
 
-        <form onSubmit={salvar} className="mt-6 space-y-4">
+        <form onSubmit={salvar} className="mt-6" aria-busy={salvando}>
+          <fieldset disabled={salvando} className="min-w-0 space-y-4 disabled:opacity-60">
           <div className="flex flex-col gap-2">
             <label
               htmlFor={`${prefixo}-descricao`}
@@ -205,9 +219,10 @@ export default function EditarTransacao({
               type="submit"
               className="min-h-12 rounded-xl bg-primary px-4 font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              Salvar alterações
+              {salvando ? "Salvando..." : "Salvar alterações"}
             </button>
           </footer>
+          </fieldset>
         </form>
       </dialog>
     </>

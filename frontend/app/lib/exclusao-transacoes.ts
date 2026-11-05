@@ -1,12 +1,12 @@
-import type { TransacaoDemo } from "./demo-data";
+import type { Transacao } from "./transacoes";
 
 export type EscopoExclusao = "SOMENTE_ESTA" | "ESTA_E_PROXIMAS";
 
 export function selecionarParaExclusao(
-  transacoes: TransacaoDemo[],
+  transacoes: Transacao[],
   id: number,
   escopo: EscopoExclusao,
-): TransacaoDemo[] {
+): Transacao[] {
   const selecionada = transacoes.find((transacao) => transacao.id === id);
 
   if (!selecionada) {

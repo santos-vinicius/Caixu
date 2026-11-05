@@ -38,6 +38,8 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
 
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const operacaoEmAndamento = useRef(false);
 
   const categoriasDisponiveis = categorias.filter(
     (categoria) => categoria.tipoCategoria === tipoMovimento,
@@ -51,8 +53,9 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
   const campoClasse =
     "h-12 w-full rounded-xl border-2 border-border bg-surface px-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
-  function salvarTransacao(event: FormEvent<HTMLFormElement>) {
+  async function salvarTransacao(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (operacaoEmAndamento.current) return;
     setErro("");
 
     const categoria = categoriasDisponiveis.find(
@@ -76,9 +79,10 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
       return;
     }
 
-    const grupoId = crypto.randomUUID();
-
-    adicionarTransacoes(
+    operacaoEmAndamento.current = true;
+    setSalvando(true);
+    try {
+    await adicionarTransacoes(
       ocorrencias.map((ocorrencia) => ({
         descricao:
           descricao.trim() ||
@@ -89,7 +93,6 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
         tipoMovimento,
         categoriaId: categoria?.id,
         modalidade: planejamento.modalidade,
-        grupoId,
         numeroOcorrencia: ocorrencia.numero,
         totalOcorrencias: ocorrencias.length,
         frequencia:
@@ -114,6 +117,12 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
     setTipoMovimento("DESPESA");
     setPlanejamento(criarPlanejamentoInicial());
     fecharModal();
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível adicionar o lançamento.");
+    } finally {
+      operacaoEmAndamento.current = false;
+      setSalvando(false);
+    }
   }
 
   return (
@@ -131,6 +140,7 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
 
       <dialog
         ref={dialogRef}
+        onCancel={(event) => { if (salvando) event.preventDefault(); }}
         aria-labelledby="nova-transacao-title"
         className="caixu-scrollbar fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%_-_2rem)] max-w-2xl
         overflow-y-auto rounded-3xl border border-border bg-surface text-foreground backdrop:bg-brand-plum/60"
@@ -152,6 +162,7 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
           <button
             type="button"
             onClick={fecharModal}
+            disabled={salvando}
             aria-label="Fechar nova transação"
             className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-border
             text-xl text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -160,7 +171,8 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
           </button>
         </header>
 
-        <form onSubmit={salvarTransacao}>
+        <form onSubmit={salvarTransacao} aria-busy={salvando}>
+          <fieldset disabled={salvando} className="min-w-0 disabled:opacity-60">
           <div className="px-4 pb-4 sm:px-6 sm:pb-6">
             <fieldset className="mt-6">
               <legend className="text-sm font-bold">
@@ -273,6 +285,7 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
             <button
               type="button"
               onClick={fecharModal}
+            disabled={salvando}
               className="min-h-12 min-w-0 rounded-xl border border-border px-2 text-sm font-bold sm:px-5 sm:text-base text-primary
               focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
@@ -283,13 +296,14 @@ export default function NovaTransacao({ compact = false }: NovaTransacaoProps) {
               className="min-h-12 min-w-0 rounded-xl bg-primary px-2 text-sm font-bold sm:px-5 sm:text-base text-on-primary
               focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              {planejamento.modalidade === "UNICA"
+              {salvando ? "Salvando..." : planejamento.modalidade === "UNICA"
                 ? tipoMovimento === "RECEITA"
                   ? "Adicionar recebimento"
                   : "Adicionar gasto"
                 : "Adicionar lançamentos"}
             </button>
           </footer>
+          </fieldset>
         </form>
       </dialog>
       <div

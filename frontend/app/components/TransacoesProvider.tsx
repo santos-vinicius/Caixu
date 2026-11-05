@@ -5,7 +5,9 @@ import {
   removerCategoria,
   type Categoria,
 } from "@/app/lib/categorias-api";
-import { transacoesDemo, type TransacaoDemo } from "@/app/lib/demo-data";
+import type { Transacao, NovaTransacao } from "@/app/lib/transacoes";
+import { criarTransacoes, atualizarTransacao, removerTransacao } from "@/app/lib/transacoes-api";
+import { atualizarPerfil, type UsuarioResponse, type UsuarioAtualizacaoRequest } from "@/app/lib/usuarios-api";
 import { useHoje } from "@/app/lib/use-hoje";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import {
@@ -13,25 +15,17 @@ import {
   type EscopoExclusao,
 } from "../lib/exclusao-transacoes";
 
-type NovaTransacaoDemo = Omit<TransacaoDemo, "id">;
 export type AtualizacaoTransacao = Pick<
-  TransacaoDemo,
+  Transacao,
   "descricao" | "valor" | "dataTransacao" | "categoriaId"
 >;
 
-export type UsuarioDemo = {
-  id: number;
-  nome: string;
-  email: string;
-  saldoInicial: number;
-};
-
 type TransacoesContextValue = {
   dataReferencia: string;
-  transacoes: TransacaoDemo[];
-  adicionarTransacoes: (novas: NovaTransacaoDemo[]) => void;
-  excluirTransacao: (id: number, escopo?: EscopoExclusao) => void;
-  editarTransacao: (id: number, alteracoes: AtualizacaoTransacao) => void;
+  transacoes: Transacao[];
+  adicionarTransacoes: (novas: NovaTransacao[]) => Promise<void>;
+  excluirTransacao: (id: number, escopo?: EscopoExclusao) => Promise<void>;
+  editarTransacao: (id: number, alteracoes: AtualizacaoTransacao) => Promise<void>;
   categorias: Categoria[];
   adicionarCategoria: (
     nome: string,
@@ -39,8 +33,8 @@ type TransacoesContextValue = {
   ) => Promise<void>;
   renomearCategoria: (id: number, nome: string) => Promise<string | null>;
   excluirCategoria: (id: number) => Promise<void>;
-  usuario: UsuarioDemo;
-  atualizarUsuario: (dados: Omit<UsuarioDemo, "id">) => void;
+  usuario: UsuarioResponse;
+  atualizarUsuario: (dados: UsuarioAtualizacaoRequest) => Promise<void>;
 };
 
 const TransacoesContext = createContext<TransacoesContextValue | undefined>(
@@ -51,59 +45,36 @@ export default function TransacoesProvider({
   children,
   usuarioInicial,
   categoriasIniciais,
+  transacoesIniciais,
 }: {
   children: ReactNode;
-  usuarioInicial: UsuarioDemo;
+  usuarioInicial: UsuarioResponse;
   categoriasIniciais: Categoria[];
+  transacoesIniciais: Transacao[];
 }) {
   const dataReferencia = useHoje();
-  const [transacoes, setTransacoes] = useState<TransacaoDemo[]>(() =>
-    transacoesDemo.map((transacao) => ({
-      ...transacao,
-      categoriaId: undefined,
-    })),
-  );
+  const [transacoes, setTransacoes] = useState<Transacao[]>(transacoesIniciais);
   const [categorias, setCategorias] = useState<Categoria[]>(categoriasIniciais);
-  const [usuario, setUsuario] = useState<UsuarioDemo>(usuarioInicial);
+  const [usuario, setUsuario] = useState<UsuarioResponse>(usuarioInicial);
 
-  function adicionarTransacoes(novas: NovaTransacaoDemo[]) {
-    const criadoEm = new Date().toISOString();
+  async function adicionarTransacoes(novas: NovaTransacao[]): Promise<void> {
+    const criadas = await criarTransacoes(novas);
+    setTransacoes((atuais) => [...atuais, ...criadas]);
+  }
+
+  async function excluirTransacao(id: number, escopo: EscopoExclusao = "SOMENTE_ESTA"): Promise<void> {
+    await removerTransacao(id, escopo);
     setTransacoes((atuais) => {
-      const maiorId = atuais.reduce(
-        (maior, transacao) => Math.max(maior, transacao.id),
-        0,
-      );
-
-      const registros = novas.map((transacao, indice) => ({
-        ...transacao,
-        id: maiorId + indice + 1,
-        criadoEm,
-      }));
-      return [...atuais, ...registros];
+      const ids = new Set(selecionarParaExclusao(atuais, id, escopo).map((item) => item.id));
+      return atuais.filter((item) => !ids.has(item.id));
     });
   }
 
-  function excluirTransacao(
-    id: number,
-    escopo: EscopoExclusao = "SOMENTE_ESTA",
-  ) {
-    setTransacoes((atuais) => {
-      const ids = new Set(
-        selecionarParaExclusao(atuais, id, escopo).map(
-          (transacao) => transacao.id,
-        ),
-      );
-
-      return atuais.filter((transacao) => !ids.has(transacao.id));
-    });
-  }
-
-  function editarTransacao(id: number, alteracoes: AtualizacaoTransacao) {
-    setTransacoes((atuais) =>
-      atuais.map((transacao) =>
-        transacao.id === id ? { ...transacao, ...alteracoes } : transacao,
-      ),
-    );
+  async function editarTransacao(id: number, alteracoes: AtualizacaoTransacao): Promise<void> {
+    const existente = transacoes.find((item) => item.id === id);
+    if (!existente) throw new Error("Lançamento não encontrado. Atualize a página.");
+    const atualizada = await atualizarTransacao(id, { ...existente, ...alteracoes });
+    setTransacoes((atuais) => atuais.map((item) => item.id === id ? atualizada : item));
   }
 
   async function adicionarCategoria(
@@ -190,11 +161,9 @@ export default function TransacoesProvider({
     );
   }
 
-  function atualizarUsuario(dados: Omit<UsuarioDemo, "id">) {
-    setUsuario((atual) => ({
-      ...atual,
-      ...dados,
-    }));
+  async function atualizarUsuario(dados: UsuarioAtualizacaoRequest): Promise<void> {
+    const atualizado = await atualizarPerfil(usuario.id, dados);
+    setUsuario(atualizado);
   }
 
   if (dataReferencia === null) {

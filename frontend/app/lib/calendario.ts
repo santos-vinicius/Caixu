@@ -1,4 +1,4 @@
-import type { TransacaoDemo } from "./demo-data";
+import type { Transacao } from "./transacoes";
 
 export type DiaFinanceiro = {
   data: string;
@@ -12,7 +12,7 @@ type CalendarioParams = {
   ano: number;
   mes: number;
   saldoInicial: number;
-  transacoes: TransacaoDemo[];
+  transacoes: Transacao[];
   dataReferencia: string;
 };
 
@@ -27,7 +27,7 @@ export function gerarCalendario({
   const primeiroDia = `${prefixo}-01`;
   const quantidadeDias = new Date(Date.UTC(ano, mes, 0)).getUTCDate();
 
-  // Somamos em centavos pq estava dando b.o com ponto flutuante (corrigir depois)
+  // Acumula em centavos para evitar imprecisões de ponto flutuante.
   let saldoCentavos = Math.round(saldoInicial * 100);
 
   const movimentos = new Map<string, { entradas: number; saidas: number }>();

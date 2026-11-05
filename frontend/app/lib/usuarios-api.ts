@@ -1,4 +1,5 @@
 import { requisitarApi } from "./api";
+import { validarRespostaApi } from "./resposta-api";
 
 export type UsuarioRequest = {
   nome: string;
@@ -62,4 +63,23 @@ export async function buscarUsuario(
   }
 
   return resposta.json();
+}
+
+export type UsuarioAtualizacaoRequest = Omit<UsuarioRequest, "senha"> & {
+  senha?: string;
+  senhaAtual?: string;
+};
+
+export async function atualizarPerfil(id: number, dados: UsuarioAtualizacaoRequest): Promise<UsuarioResponse> {
+  const resposta = await requisitarApi(`/usuarios/${id}`, {
+    method: "PUT", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados),
+  });
+  await validarRespostaApi(resposta);
+  return resposta.json();
+}
+
+export async function excluirConta(id: number): Promise<void> {
+  const resposta = await requisitarApi(`/usuarios/${id}`, { method: "DELETE" });
+  await validarRespostaApi(resposta);
 }

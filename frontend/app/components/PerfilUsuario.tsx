@@ -6,7 +6,8 @@ import {
   interpretarSaldoInput,
 } from "@/app/lib/formatters";
 import Image from "next/image";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import ExcluirConta from "./ExcluirConta";
 
 export default function PerfilUsuario() {
   const { usuario, atualizarUsuario } = useTransacoes();
@@ -17,6 +18,11 @@ export default function PerfilUsuario() {
 
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
+  const [senhaAtual, setSenhaAtual] = useState("");
+  const [novaSenha, setNovaSenha] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const operacaoEmAndamento = useRef(false);
+  const confirmacaoNecessaria = email.trim().toLowerCase() !== usuario.email.toLowerCase() || novaSenha !== "";
 
   const campoClasse =
     "h-12 w-full rounded-xl border-2 border-border bg-surface px-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
@@ -27,15 +33,18 @@ export default function PerfilUsuario() {
     setSaldo(formatarSaldoInput(usuario.saldoInicial));
     setErro("");
     setMensagem("");
+    setSenhaAtual("");
+    setNovaSenha("");
   }
 
-  function salvar(event: FormEvent<HTMLFormElement>) {
+  async function salvar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (operacaoEmAndamento.current) return;
     setErro("");
     setMensagem("");
 
     const nomeTratado = nome.trim();
-    const emailTratado = email.trim();
+    const emailTratado = email.trim().toLowerCase();
 
     if (!nomeTratado || nomeTratado.length > 60) {
       setErro("Informe um nome entre 1 e 60 caracteres.");
@@ -56,16 +65,29 @@ export default function PerfilUsuario() {
       return;
     }
 
-    atualizarUsuario({
+    operacaoEmAndamento.current = true;
+    setSalvando(true);
+    try {
+    await atualizarUsuario({
       nome: nomeTratado,
       email: emailTratado,
       saldoInicial: saldoNumerico,
+      senha: novaSenha || undefined,
+      senhaAtual: senhaAtual || undefined,
     });
 
     setNome(nomeTratado);
     setEmail(emailTratado);
     setSaldo(formatarSaldoInput(saldoNumerico));
+    setSenhaAtual("");
+    setNovaSenha("");
     setMensagem("Perfil atualizado. Seus saldos foram recalculados.");
+    } catch (error) {
+      setErro(error instanceof Error ? error.message : "Não foi possível atualizar seu perfil.");
+    } finally {
+      operacaoEmAndamento.current = false;
+      setSalvando(false);
+    }
   }
 
   return (
@@ -101,7 +123,8 @@ export default function PerfilUsuario() {
           Dados pessoais
         </h2>
 
-        <form onSubmit={salvar} className="mt-5 space-y-5">
+        <form onSubmit={salvar} className="mt-5" aria-busy={salvando}>
+          <fieldset disabled={salvando} className="min-w-0 space-y-5 disabled:opacity-60">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <label htmlFor="perfil-nome" className="text-sm font-bold">
@@ -173,6 +196,25 @@ export default function PerfilUsuario() {
             </p>
           </div>
 
+          <div className="grid gap-4 border-t border-border pt-5 sm:grid-cols-2">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="perfil-nova-senha" className="text-sm font-bold">Nova senha · opcional</label>
+              <input id="perfil-nova-senha" type="password" value={novaSenha}
+                onChange={(event) => setNovaSenha(event.target.value)} maxLength={100}
+                autoComplete="new-password" placeholder="Deixe em branco para manter a atual" className={campoClasse} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="perfil-senha-atual" className="text-sm font-bold">Senha atual</label>
+              <input id="perfil-senha-atual" type="password" value={senhaAtual}
+                onChange={(event) => setSenhaAtual(event.target.value)} maxLength={100}
+                autoComplete="current-password" required={confirmacaoNecessaria}
+                aria-describedby="perfil-seguranca-ajuda" placeholder="Confirme ao alterar e-mail ou senha" className={campoClasse} />
+            </div>
+            <p id="perfil-seguranca-ajuda" className="text-xs text-muted sm:col-span-2">
+              Para alterar seu e-mail ou senha, confirme a senha atual. As demais alterações não exigem essa confirmação.
+            </p>
+          </div>
+
           {erro && (
             <p role="alert" className="text-sm font-bold text-negative">
               {erro}
@@ -204,10 +246,12 @@ export default function PerfilUsuario() {
               type="submit"
               className="min-h-12 rounded-xl bg-primary px-5 font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              Salvar alterações
+              {salvando ? "Salvando..." : "Salvar alterações"}
             </button>
           </footer>
+          </fieldset>
         </form>
+        <ExcluirConta />
       </section>
     </div>
   );
