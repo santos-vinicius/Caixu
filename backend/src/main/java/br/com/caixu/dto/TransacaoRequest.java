@@ -1,6 +1,11 @@
 package br.com.caixu.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,10 +33,8 @@ public class TransacaoRequest {
     @Size(max = 4000)
     private String descricao;
 
-    @NotNull
     private Long categoriaId;
 
-    @NotNull
     private Long usuarioId;
 
     public BigDecimal getValor() {

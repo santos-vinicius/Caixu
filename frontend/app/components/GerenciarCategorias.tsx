@@ -8,8 +8,9 @@ import AcoesCategoria from "./AcoesCategoria";
 export default function GerenciarCategorias() {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  const { categorias, adicionarCategoria, transacoes } = useTransacoes();
-
+  const { categorias, adicionarCategoria } = useTransacoes();
+  const [salvando, setSalvando] = useState(false);
+  const operacaoEmAndamento = useRef(false);
   const [nome, setNome] = useState("");
   const [tipo, setTipo] = useState<"DESPESA" | "RECEITA">("DESPESA");
   const [erro, setErro] = useState("");
@@ -22,32 +23,33 @@ export default function GerenciarCategorias() {
     dialogRef.current?.showModal();
   }
 
-  function salvar(event: FormEvent<HTMLFormElement>) {
+  async function salvar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (operacaoEmAndamento.current) {
+      return;
+    }
+
+    operacaoEmAndamento.current = true;
+    setSalvando(true);
     setErro("");
+    setMensagem("");
 
-    const nomeTratado = nome.trim();
+    try {
+      await adicionarCategoria(nome.trim(), tipo);
 
-    if (!nomeTratado || nomeTratado.length > 60) {
-      setErro("Informe um nome entre 1 e 60 caracteres.");
-      return;
+      dialogRef.current?.close();
+      informarAlteracao(`Categoria “${nome.trim()}” criada.`);
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível criar a categoria.",
+      );
+    } finally {
+      operacaoEmAndamento.current = false;
+      setSalvando(false);
     }
-
-    const duplicada = categorias.some(
-      (categoria) =>
-        categoria.tipoCategoria === tipo &&
-        categoria.nomeCategoria.toLocaleLowerCase("pt-BR") ===
-          nomeTratado.toLocaleLowerCase("pt-BR"),
-    );
-
-    if (duplicada) {
-      setErro("Já existe uma categoria com esse nome e tipo.");
-      return;
-    }
-
-    adicionarCategoria(nomeTratado, tipo);
-    dialogRef.current?.close();
-    setMensagem(`Categoria “${nomeTratado}” criada.`);
   }
 
   const campoClasse =
@@ -131,10 +133,6 @@ export default function GerenciarCategorias() {
                 .map((categoria) => {
                   const receita = categoria.tipoCategoria === "RECEITA";
 
-                  const quantidade = transacoes.filter(
-                    (transacao) => transacao.categoriaId === categoria.id,
-                  ).length;
-
                   return (
                     <li
                       key={categoria.id}
@@ -150,12 +148,6 @@ export default function GerenciarCategorias() {
                           >
                             {receita ? "Recebimento" : "Gasto"}
                           </span>
-                          <p className="text-xs text-muted">
-                            {quantidade}{" "}
-                            {quantidade === 1
-                              ? "lançamento vinculado"
-                              : "lançamentos vinculados"}
-                          </p>
                         </div>
                       </div>
 
@@ -228,6 +220,11 @@ export default function GerenciarCategorias() {
 
       <dialog
         ref={dialogRef}
+        onCancel={(event) => {
+          if (salvando) {
+            event.preventDefault();
+          }
+        }}
         aria-labelledby="nova-categoria-title"
         className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
       >
@@ -252,6 +249,7 @@ export default function GerenciarCategorias() {
               maxLength={60}
               required
               className={campoClasse}
+              disabled={salvando}
             />
           </div>
 
@@ -263,6 +261,7 @@ export default function GerenciarCategorias() {
             <select
               id="categoria-tipo"
               value={tipo}
+              disabled={salvando}
               onChange={(event) =>
                 setTipo(event.target.value as "DESPESA" | "RECEITA")
               }
@@ -282,6 +281,7 @@ export default function GerenciarCategorias() {
           <footer className="flex flex-wrap justify-end gap-3 border-t border-border pt-4">
             <button
               type="button"
+              disabled={salvando}
               onClick={() => dialogRef.current?.close()}
               className="min-h-12 rounded-xl border border-border px-4 font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
@@ -290,9 +290,10 @@ export default function GerenciarCategorias() {
 
             <button
               type="submit"
+              disabled={salvando}
               className="min-h-12 rounded-xl bg-primary px-4 font-bold text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              Criar categoria
+              {salvando ? "Criando..." : "Criar categoria"}
             </button>
           </footer>
         </form>

@@ -5,11 +5,10 @@ import { useId, useState } from "react";
 
 import { useTransacoes } from "@/app/components/TransacoesProvider";
 import { gerarCalendario } from "@/app/lib/calendario";
-import { dataReferencia } from "@/app/lib/demo-data";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
 
 export default function EvolucaoSaldo() {
-  const { transacoes, usuario } = useTransacoes();
+  const { transacoes, usuario, dataReferencia } = useTransacoes();
   const tituloId = useId();
   const descricaoId = useId();
 

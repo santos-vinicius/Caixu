@@ -1,13 +1,13 @@
 "use client";
 
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import type { TransacaoDemo } from "@/app/lib/demo-data";
+import type { Transacao } from "@/app/lib/transacoes";
 import { formatarData, formatarMoeda } from "@/app/lib/formatters";
 import { useEffect, useRef } from "react";
 
 type DetalhesDiaModalProps = {
   data: string;
-  transacoes: TransacaoDemo[];
+  transacoes: Transacao[];
   onClose: () => void;
 };
 

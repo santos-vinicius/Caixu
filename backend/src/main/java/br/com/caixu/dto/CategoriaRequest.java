@@ -15,7 +15,6 @@ public class CategoriaRequest {
     @Pattern(regexp = "RECEITA|DESPESA")
     private String tipoCategoria;
 
-    @NotNull
     private Long usuarioId;
 
     public String getNomeCategoria() {

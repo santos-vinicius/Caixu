@@ -1,7 +1,8 @@
 # Contrato do projeto — Caixu
 
 **Fase:** 7  
-**Data:** 2026-10-28  
+**Data inicial:** 2026-10-28
+**Atualização de integração:** 2026-11-05
 **Status:** aprovado para orientar a implementação incremental
 
 Este documento define o acordo técnico inicial entre o banco Oracle, o backend Spring Boot e o frontend React do Caixu.
@@ -54,7 +55,7 @@ Não fazem parte deste incremento:
 | `metodoPagamento` | `String` | Opcional |
 | `status` | `String` | Opcional nesta etapa |
 | `descricao` | `String` | Opcional |
-| `categoriaId` | `Long` | Obrigatório |
+| `categoriaId` | `Long` | Opcional; categoria do mesmo proprietário e tipo |
 | `usuarioId` | `Long` | Obrigatório |
 
 Os nomes Java serão idiomáticos. O mapeamento para as colunas Oracle será explícito com `@Column` e `@JoinColumn`.
@@ -65,7 +66,7 @@ Os nomes Java serão idiomáticos. O mapeamento para as colunas Oracle será exp
 - um usuário possui transações;
 - uma categoria pertence a um usuário;
 - uma transação pertence a um usuário;
-- uma transação pertence a uma categoria;
+- uma transação pode pertencer a uma categoria; removê-la preserva as transações;
 - a categoria da transação deve pertencer ao mesmo usuário da transação.
 
 ## 4. Regra de saldo
@@ -103,31 +104,31 @@ DELETE  /api/usuarios/{id}
 ### Categorias
 
 ```text
-GET     /api/categorias?usuarioId={id}
-GET     /api/categorias/{id}?usuarioId={id}
+GET     /api/categorias
+GET     /api/categorias/{id}
 POST    /api/categorias
 PUT     /api/categorias/{id}
-DELETE  /api/categorias/{id}?usuarioId={id}
+DELETE  /api/categorias/{id}
 ```
 
 ### Transações
 
 ```text
-GET     /api/transacoes?usuarioId={id}
-GET     /api/transacoes/{id}?usuarioId={id}
+GET     /api/transacoes
+GET     /api/transacoes/{id}
 POST    /api/transacoes
 PUT     /api/transacoes/{id}
-DELETE  /api/transacoes/{id}?usuarioId={id}
+DELETE  /api/transacoes/{id}
 ```
 
 ### Autenticação e resumo
 
 ```text
 POST    /api/auth/login
-GET     /api/dashboard?usuarioId={id}
+GET     /api/dashboard
 ```
 
-O login inicial será simples, para fins acadêmicos. O frontend receberá o identificador do usuário autenticado e o utilizará nas consultas do MVP. Essa solução não representa uma autenticação de produção.
+O login verifica hash PBKDF2 e cria sessão HttpOnly. Os controllers obtêm o proprietário exclusivamente da sessão. Escritas exigem token CSRF. O frontend envia cookies com `credentials: include`.
 
 ## 6. Exemplos de payloads
 
@@ -135,8 +136,8 @@ O login inicial será simples, para fins acadêmicos. O frontend receberá o ide
 
 ```json
 {
-  "email": "teste.caixu@fiap.local",
-  "senha": "HASH_TESTE"
+  "email": "usuario@exemplo.com",
+  "senha": "sua-senha"
 }
 ```
 
@@ -145,8 +146,7 @@ O login inicial será simples, para fins acadêmicos. O frontend receberá o ide
 ```json
 {
   "nomeCategoria": "Alimentacao",
-  "tipoCategoria": "DESPESA",
-  "usuarioId": 1
+  "tipoCategoria": "DESPESA"
 }
 ```
 
@@ -160,8 +160,7 @@ O login inicial será simples, para fins acadêmicos. O frontend receberá o ide
   "metodoPagamento": "CARTAO",
   "status": "REALIZADA",
   "descricao": "Compras de supermercado",
-  "categoriaId": 2,
-  "usuarioId": 1
+  "categoriaId": 2
 }
 ```
 
@@ -176,7 +175,8 @@ Datas serão transportadas no formato ISO `YYYY-MM-DD`. Valores monetários ser�
 | Atualização realizada | `200 OK` |
 | Exclusão realizada | `204 No Content` |
 | Dados inválidos | `400 Bad Request` |
-| Login inválido | `401 Unauthorized` |
+| Login inválido ou sessão ausente | `401 Unauthorized` |
+| Outro proprietário ou CSRF inválido | `403 Forbidden` |
 | Registro não encontrado | `404 Not Found` |
 | E-mail já cadastrado | `409 Conflict` |
 
@@ -194,3 +194,19 @@ backend/
 ```
 
 Este contrato será a referência para a próxima etapa. Qualquer mudança em campos, regras ou endpoints deverá ser registrada antes da implementação correspondente.
+
+
+## 9. Integração final e sequências
+
+Permanecem somente três entidades JPA. Parcelas e recorrências são representadas por múltiplas transações, com os campos `modalidade`, `grupoId`, `numeroOcorrencia`, `totalOcorrencias`, `frequencia` e `criadoEm` persistidos em `TRANSACAO`.
+
+- `POST /api/transacoes/lote` recebe `{ modalidade, frequencia, transacoes: [...] }`, limitado a 120 itens. O backend valida tipo, categoria, datas e frequência, gera o grupo e os números das ocorrências e salva todo o lote em uma transação de banco.
+- `DELETE /api/transacoes/{id}` remove somente a ocorrência; `?escopo=ESTA_E_PROXIMAS` remove a selecionada e as posteriores pelo número de ocorrência no mesmo grupo e proprietário.
+- PUT modifica os dados financeiros somente da ocorrência escolhida e preserva a identificação da sequência.
+- A frequência de parcelas é mensal; recorrências podem ser semanais ou mensais. O dia original é preservado depois de meses curtos.
+- `GET /api/auth/csrf`, `GET /api/auth/me` e `POST /api/auth/logout` complementam o login.
+- PUT de usuário preserva a senha quando o campo `senha` é omitido. Alteração de e-mail ou senha exige `senhaAtual`.
+- DELETE de usuário remove suas dependências de forma atômica e invalida a sessão depois do sucesso.
+- Dashboard e calendário consomem as transações reais; não utilizam fallback de demonstração.
+
+A criação inicial está em `sql/01_schema.sql`. A atualização aditiva está em `sql/02_transacoes_sequencias.sql`, com cópia executável pelo Spring em `backend/src/main/resources/db/02_transacoes_sequencias.sql`. Não executar scripts de criação sobre tabelas existentes.

@@ -43,7 +43,13 @@ CREATE TABLE transacao (
     metodo_pagamento VARCHAR2(30),
     status VARCHAR2(20),
     descricao VARCHAR2(4000),
-    categoria_id_categoria NUMBER NOT NULL,
+    modalidade VARCHAR2(12) DEFAULT 'UNICA' NOT NULL,
+    grupo_id VARCHAR2(36),
+    numero_ocorrencia NUMBER(3),
+    total_ocorrencias NUMBER(3),
+    frequencia VARCHAR2(7),
+    criado_em TIMESTAMP(6) DEFAULT SYSTIMESTAMP NOT NULL,
+    categoria_id_categoria NUMBER,
     usuario_id_usuario NUMBER NOT NULL,
 
     CONSTRAINT transacao_pk
@@ -63,6 +69,8 @@ CREATE TABLE transacao (
         FOREIGN KEY (categoria_id_categoria, usuario_id_usuario)
         REFERENCES categoria (id_categoria, usuario_id_usuario)
 );
+
+CREATE UNIQUE INDEX transacao_grupo_uk ON transacao (grupo_id, numero_ocorrencia);
 
 -- Conferencia das tabelas criadas.
 SELECT table_name

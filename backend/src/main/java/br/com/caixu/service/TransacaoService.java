@@ -2,6 +2,8 @@ package br.com.caixu.service;
 
 import br.com.caixu.dto.TransacaoRequest;
 import br.com.caixu.dto.TransacaoResponse;
+import br.com.caixu.dto.TransacaoLoteRequest;
+import br.com.caixu.exception.BusinessRuleException;
 import br.com.caixu.entity.Categoria;
 import br.com.caixu.entity.Transacao;
 import br.com.caixu.entity.Usuario;
@@ -14,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -56,9 +61,10 @@ public class TransacaoService {
 
     public TransacaoResponse salvar(TransacaoRequest request) {
         Usuario usuario = buscarUsuario(request.getUsuarioId());
-        Categoria categoria = buscarCategoria(request.getCategoriaId());
-
-        validarCategoriaDoUsuario(categoria, request.getUsuarioId());
+        Categoria categoria = resolverCategoria(
+                request.getCategoriaId(),
+                request.getUsuarioId(), request.getTipoMovimento()
+        );
 
         Transacao transacao = new Transacao();
         preencherDados(transacao, request);
@@ -75,8 +81,10 @@ public class TransacaoService {
         Transacao transacao = buscarEntidade(id);
         validarProprietario(transacao, request.getUsuarioId());
 
-        Categoria categoria = buscarCategoria(request.getCategoriaId());
-        validarCategoriaDoUsuario(categoria, request.getUsuarioId());
+        Categoria categoria = resolverCategoria(
+                request.getCategoriaId(),
+                request.getUsuarioId(), request.getTipoMovimento()
+        );
 
         preencherDados(transacao, request);
         transacao.setCategoria(categoria);
@@ -85,10 +93,61 @@ public class TransacaoService {
     }
 
     public void excluir(Long id, Long usuarioId) {
+        excluir(id, usuarioId, "SOMENTE_ESTA");
+    }
+
+    public void excluir(Long id, Long usuarioId, String escopo) {
         Transacao transacao = buscarEntidade(id);
         validarProprietario(transacao, usuarioId);
+        if (!List.of("SOMENTE_ESTA", "ESTA_E_PROXIMAS").contains(escopo)) {
+            throw new BusinessRuleException("Escopo de exclusão inválido.");
+        }
+        if ("ESTA_E_PROXIMAS".equals(escopo) && transacao.getGrupoId() != null) {
+            transacaoRepository.excluirSequencia(usuarioId, transacao.getGrupoId(),
+                    transacao.getNumeroOcorrencia());
+        } else {
+            transacaoRepository.delete(transacao);
+        }
+    }
 
-        transacaoRepository.delete(transacao);
+    public List<TransacaoResponse> salvarLote(TransacaoLoteRequest lote, Long usuarioId) {
+        List<TransacaoRequest> itens = lote.transacoes();
+        boolean unica = "UNICA".equals(lote.modalidade());
+        if ((unica && (itens.size() != 1 || lote.frequencia() != null))
+                || (!unica && lote.frequencia() == null)
+                || ("PARCELADA".equals(lote.modalidade()) && !"MENSAL".equals(lote.frequencia()))) {
+            throw new BusinessRuleException("Confira a modalidade, a frequência e a quantidade.");
+        }
+        Usuario usuario = buscarUsuario(usuarioId);
+        TransacaoRequest primeira = itens.get(0);
+        Categoria categoria = resolverCategoria(primeira.getCategoriaId(), usuarioId,
+                primeira.getTipoMovimento());
+        String grupoId = unica ? null : UUID.randomUUID().toString();
+        List<Transacao> registros = new ArrayList<>();
+        for (int indice = 0; indice < itens.size(); indice++) {
+            TransacaoRequest item = itens.get(indice);
+            var dataEsperada = "SEMANAL".equals(lote.frequencia())
+                    ? primeira.getDataTransacao().plusWeeks(indice)
+                    : primeira.getDataTransacao().plusMonths(indice);
+            if (!Objects.equals(item.getTipoMovimento(), primeira.getTipoMovimento())
+                    || !Objects.equals(item.getCategoriaId(), primeira.getCategoriaId())
+                    || !item.getDataTransacao().equals(dataEsperada)
+                    || ("RECORRENTE".equals(lote.modalidade())
+                        && item.getValor().compareTo(primeira.getValor()) != 0)) {
+                throw new BusinessRuleException("As ocorrências devem manter o tipo, a categoria e o período informado.");
+            }
+            Transacao transacao = new Transacao();
+            preencherDados(transacao, item);
+            transacao.setUsuario(usuario);
+            transacao.setCategoria(categoria);
+            transacao.setModalidade(lote.modalidade());
+            transacao.setGrupoId(grupoId);
+            transacao.setNumeroOcorrencia(unica ? null : indice + 1);
+            transacao.setTotalOcorrencias(unica ? null : itens.size());
+            transacao.setFrequencia(lote.frequencia());
+            registros.add(transacao);
+        }
+        return transacaoRepository.saveAll(registros).stream().map(this::paraResponse).toList();
     }
 
     private void preencherDados(
@@ -156,8 +215,27 @@ public class TransacaoService {
                 transacao.getMetodoPagamento(),
                 transacao.getStatus(),
                 transacao.getDescricao(),
-                transacao.getCategoria().getId(),
-                transacao.getUsuario().getId()
+                transacao.getCategoria() == null
+                        ? null
+                        : transacao.getCategoria().getId(),
+                transacao.getUsuario().getId(),
+                transacao.getModalidade(), transacao.getGrupoId(),
+                transacao.getNumeroOcorrencia(), transacao.getTotalOcorrencias(),
+                transacao.getFrequencia(), transacao.getCriadoEm()
         );
+    }
+
+    private Categoria resolverCategoria(Long categoriaId, Long usuarioId, String tipoMovimento) {
+        if (categoriaId == null) {
+            return null;
+        }
+
+        Categoria categoria = buscarCategoria(categoriaId);
+        validarCategoriaDoUsuario(categoria, usuarioId);
+        if (!categoria.getTipoCategoria().equals(tipoMovimento)) {
+            throw new BusinessRuleException("A categoria deve ter o mesmo tipo do lançamento.");
+        }
+
+        return categoria;
     }
 }

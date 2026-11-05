@@ -1,4 +1,5 @@
 import AppHeader from "@/app/components/AppHeader";
+import BotaoSair from "@/app/components/BotaoSair";
 import PerfilUsuario from "@/app/components/PerfilUsuario";
 
 export default function PerfilPage() {
@@ -10,6 +11,7 @@ export default function PerfilPage() {
         descricao="Confira e atualize seus dados da conta."
       />
       <PerfilUsuario />
+      <BotaoSair />
     </section>
   );
 }

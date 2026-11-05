@@ -1,15 +1,16 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { ReactNode } from "react";
+import AcessoAutenticado from "../components/AcessoAutenticado";
+import AppNavigation from "../components/AppNavigation";
+import BotaoSair from "../components/BotaoSair";
+import Logo from "../components/Logo";
 import MobileNavigation from "../components/MobileNavigation";
 import UsuarioAvatar from "../components/UsuarioAvatar";
-import { ReactNode } from "react";
-import AppNavigation from "../components/AppNavigation";
-import Logo from "../components/Logo";
-import TransacoesProvider from "../components/TransacoesProvider";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <TransacoesProvider>
+    <AcessoAutenticado>
       <div className="min-h-dvh lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
         <a
           href="#app-content"
@@ -62,6 +63,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               <span aria-hidden="true">↗</span>
               <span className="sr-only"> — abre em uma nova aba</span>
             </a>
+            <BotaoSair />
           </div>
         </aside>
 
@@ -74,6 +76,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         </main>
         <MobileNavigation />
       </div>
-    </TransacoesProvider>
+    </AcessoAutenticado>
   );
 }
