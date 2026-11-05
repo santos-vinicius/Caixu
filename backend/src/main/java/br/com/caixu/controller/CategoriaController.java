@@ -3,6 +3,8 @@ package br.com.caixu.controller;
 import br.com.caixu.dto.CategoriaRequest;
 import br.com.caixu.dto.CategoriaResponse;
 import br.com.caixu.service.CategoriaService;
+import br.com.caixu.service.SessaoService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +17,22 @@ import java.util.List;
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
+    private final SessaoService sessaoService;
 
-    public CategoriaController(CategoriaService categoriaService) {
+    public CategoriaController(
+            CategoriaService categoriaService,
+            SessaoService sessaoService
+    ) {
         this.categoriaService = categoriaService;
+        this.sessaoService = sessaoService;
     }
 
     @GetMapping
     public ResponseEntity<List<CategoriaResponse>> listarPorUsuario(
-            @RequestParam Long usuarioId
+            HttpServletRequest httpRequest
     ) {
+        Long usuarioId = sessaoService.obterUsuarioId(httpRequest);
+
         return ResponseEntity.ok(
                 categoriaService.listarPorUsuario(usuarioId)
         );
@@ -32,8 +41,10 @@ public class CategoriaController {
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponse> buscarPorId(
             @PathVariable Long id,
-            @RequestParam Long usuarioId
+            HttpServletRequest httpRequest
     ) {
+        Long usuarioId = sessaoService.obterUsuarioId(httpRequest);
+
         return ResponseEntity.ok(
                 categoriaService.buscarPorId(id, usuarioId)
         );
@@ -41,8 +52,12 @@ public class CategoriaController {
 
     @PostMapping
     public ResponseEntity<CategoriaResponse> criar(
-            @Valid @RequestBody CategoriaRequest request
+            @Valid @RequestBody CategoriaRequest request,
+            HttpServletRequest httpRequest
     ) {
+        Long usuarioId = sessaoService.obterUsuarioId(httpRequest);
+        request.setUsuarioId(usuarioId);
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(categoriaService.salvar(request));
@@ -51,8 +66,12 @@ public class CategoriaController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponse> atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody CategoriaRequest request
+            @Valid @RequestBody CategoriaRequest request,
+            HttpServletRequest httpRequest
     ) {
+        Long usuarioId = sessaoService.obterUsuarioId(httpRequest);
+        request.setUsuarioId(usuarioId);
+
         return ResponseEntity.ok(
                 categoriaService.atualizar(id, request)
         );
@@ -61,8 +80,10 @@ public class CategoriaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(
             @PathVariable Long id,
-            @RequestParam Long usuarioId
+            HttpServletRequest httpRequest
     ) {
+        Long usuarioId = sessaoService.obterUsuarioId(httpRequest);
+
         categoriaService.excluir(id, usuarioId);
 
         return ResponseEntity.noContent().build();

@@ -1,11 +1,7 @@
 "use client";
 
 import { categoriasDemo } from "@/app/lib/categorias-demo";
-import {
-  saldoInicial as saldoInicialDemo,
-  transacoesDemo,
-  type TransacaoDemo,
-} from "@/app/lib/demo-data";
+import { transacoesDemo, type TransacaoDemo } from "@/app/lib/demo-data";
 import { useHoje } from "@/app/lib/use-hoje";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { CategoriaDemo } from "../lib/categorias-demo";
@@ -47,18 +43,15 @@ const TransacoesContext = createContext<TransacoesContextValue | undefined>(
 
 export default function TransacoesProvider({
   children,
+  usuarioInicial,
 }: {
   children: ReactNode;
+  usuarioInicial: UsuarioDemo;
 }) {
   const dataReferencia = useHoje();
   const [transacoes, setTransacoes] = useState<TransacaoDemo[]>(transacoesDemo);
   const [categorias, setCategorias] = useState<CategoriaDemo[]>(categoriasDemo);
-  const [usuario, setUsuario] = useState<UsuarioDemo>({
-    id: 1,
-    nome: "Usuário de demonstração",
-    email: "teste.caixu@fiap.local",
-    saldoInicial: saldoInicialDemo,
-  });
+  const [usuario, setUsuario] = useState<UsuarioDemo>(usuarioInicial);
 
   function adicionarTransacoes(novas: NovaTransacaoDemo[]) {
     const criadoEm = new Date().toISOString();
@@ -130,7 +123,7 @@ export default function TransacoesProvider({
           id: maiorId + 1,
           nomeCategoria: nomeTratado,
           tipoCategoria: tipo,
-          usuarioId: 1,
+          usuarioId: usuario.id,
         },
       ];
     });

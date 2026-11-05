@@ -1,15 +1,16 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { ReactNode } from "react";
+import AcessoAutenticado from "../components/AcessoAutenticado";
+import AppNavigation from "../components/AppNavigation";
+import BotaoSair from "../components/BotaoSair";
+import Logo from "../components/Logo";
 import MobileNavigation from "../components/MobileNavigation";
 import UsuarioAvatar from "../components/UsuarioAvatar";
-import { ReactNode } from "react";
-import AppNavigation from "../components/AppNavigation";
-import Logo from "../components/Logo";
-import TransacoesProvider from "../components/TransacoesProvider";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <TransacoesProvider>
+    <AcessoAutenticado>
       <div className="min-h-dvh lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
         <a
           href="#app-content"
@@ -70,10 +71,18 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           tabIndex={-1}
           className="min-w-0 px-4 pt-5 pb-[calc(6rem_+_env(safe-area-inset-bottom))] sm:px-6 lg:p-10"
         >
+          <p
+            className="mx-auto mb-4 max-w-7xl rounded-xl border border-border
+    bg-surface px-4 py-3 text-sm text-muted"
+          >
+            Conta conectada. Transações e categorias ainda usam dados de
+            demonstração. Os saldos calculados são ilustrativos nesta etapa.
+          </p>
+          <BotaoSair />
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
         <MobileNavigation />
       </div>
-    </TransacoesProvider>
+    </AcessoAutenticado>
   );
 }
