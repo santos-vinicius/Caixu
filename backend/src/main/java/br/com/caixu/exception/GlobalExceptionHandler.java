@@ -7,13 +7,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import br.com.caixu.exception.InvalidCredentialsException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ErrorResponse> tratarRegra(BusinessRuleException exception, HttpServletRequest request) {
+        return criarResposta(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ErrorResponse> tratarFormato(Exception exception, HttpServletRequest request) {
+        return criarResposta(HttpStatus.BAD_REQUEST, "Confira o formato dos campos e das datas informadas.", request.getRequestURI());
+    }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> tratarNaoEncontrado(
             ResourceNotFoundException exception,
@@ -64,7 +74,7 @@ public class GlobalExceptionHandler {
     ) {
         return criarResposta(
           HttpStatus.CONFLICT,
-          "Não foi possivel gravar os dados. Verifique se o e-mail já está cadastrado!",
+          "Não foi possível concluir a operação. Verifique se o e-mail já existe ou se há vínculos incompatíveis.",
           request.getRequestURI()
         );
     }

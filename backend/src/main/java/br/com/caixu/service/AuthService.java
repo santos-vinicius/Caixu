@@ -23,7 +23,7 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest request) {
         Usuario usuario = usuarioRepository
-                .findByEmail(request.getEmail())
+                .findByEmailIgnoreCase(request.getEmail().trim())
                 .orElseThrow(() ->
                         new InvalidCredentialsException(
                                 "E-mail ou senha inválidos"

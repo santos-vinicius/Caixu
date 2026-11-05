@@ -5,6 +5,7 @@ import br.com.caixu.dto.CategoriaResponse;
 import br.com.caixu.entity.Categoria;
 import br.com.caixu.entity.Usuario;
 import br.com.caixu.exception.OwnershipException;
+import br.com.caixu.exception.BusinessRuleException;
 import br.com.caixu.exception.ResourceNotFoundException;
 import br.com.caixu.repository.CategoriaRepository;
 import br.com.caixu.repository.UsuarioRepository;
@@ -67,6 +68,10 @@ public class CategoriaService {
     ) {
         Categoria categoria = buscarEntidade(id);
         validarProprietario(categoria, request.getUsuarioId());
+
+        if (transacaoRepository.existsByCategoria_IdAndTipoMovimentoNot(id, request.getTipoCategoria())) {
+            throw new BusinessRuleException("O tipo da categoria não pode mudar enquanto houver lançamentos de outro tipo vinculados.");
+        }
 
         categoria.setNomeCategoria(request.getNomeCategoria());
         categoria.setTipoCategoria(request.getTipoCategoria());

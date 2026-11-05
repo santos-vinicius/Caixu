@@ -2,6 +2,7 @@ package br.com.caixu.controller;
 
 import br.com.caixu.dto.TransacaoRequest;
 import br.com.caixu.dto.TransacaoResponse;
+import br.com.caixu.dto.TransacaoLoteRequest;
 import br.com.caixu.service.SessaoService;
 import br.com.caixu.service.TransacaoService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,6 +64,16 @@ public class TransacaoController {
                 .body(transacaoService.salvar(request));
     }
 
+    @PostMapping("/lote")
+    public ResponseEntity<List<TransacaoResponse>> criarLote(
+            @Valid @RequestBody TransacaoLoteRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        Long usuarioId = sessaoService.obterUsuarioId(httpRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(transacaoService.salvarLote(request, usuarioId));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<TransacaoResponse> atualizar(
             @PathVariable Long id,
@@ -80,11 +91,12 @@ public class TransacaoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(
             @PathVariable Long id,
+            @RequestParam(defaultValue = "SOMENTE_ESTA") String escopo,
             HttpServletRequest httpRequest
     ) {
         Long usuarioId = sessaoService.obterUsuarioId(httpRequest);
 
-        transacaoService.excluir(id, usuarioId);
+        transacaoService.excluir(id, usuarioId, escopo);
 
         return ResponseEntity.noContent().build();
     }

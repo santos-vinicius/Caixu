@@ -11,6 +11,20 @@ import java.util.List;
 public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
 
     List<Transacao> findByUsuario_Id(Long usuarioId);
+
+    boolean existsByCategoria_IdAndTipoMovimentoNot(Long categoriaId, String tipoMovimento);
+
+    @Modifying(flushAutomatically = true)
+    @Query("delete from Transacao t where t.usuario.id = :usuarioId")
+    int excluirPorUsuario(@Param("usuarioId") Long usuarioId);
+
+    @Modifying(flushAutomatically = true)
+    @Query("""
+        delete from Transacao t where t.usuario.id = :usuarioId
+        and t.grupoId = :grupoId and t.numeroOcorrencia >= :numero
+        """)
+    int excluirSequencia(@Param("usuarioId") Long usuarioId, @Param("grupoId") String grupoId,
+                         @Param("numero") Integer numero);
     @Modifying(flushAutomatically = true)
     @Query("""
         update Transacao t

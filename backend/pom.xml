@@ -28,6 +28,7 @@
     </scm>
     <properties>
         <java.version>17</java.version>
+        <test.excluded.groups>oracle</test.excluded.groups>
     </properties>
     <dependencies>
         <dependency>
@@ -74,10 +75,21 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration><excludedGroups>${test.excluded.groups}</excludedGroups></configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>oracle</id>
+            <properties><test.excluded.groups></test.excluded.groups></properties>
+        </profile>
+    </profiles>
 </project>

@@ -2,6 +2,7 @@ package br.com.caixu.controller;
 
 import br.com.caixu.dto.UsuarioRequest;
 import br.com.caixu.dto.UsuarioResponse;
+import br.com.caixu.dto.UsuarioAtualizacaoRequest;
 import br.com.caixu.service.SessaoService;
 import br.com.caixu.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -59,7 +60,7 @@ public class UsuarioController {
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponse> atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody UsuarioRequest request,
+            @Valid @RequestBody UsuarioAtualizacaoRequest request,
             HttpServletRequest httpRequest
     ) {
         sessaoService.validarUsuario(httpRequest, id);
