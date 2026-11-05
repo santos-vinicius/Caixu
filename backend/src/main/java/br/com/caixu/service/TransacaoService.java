@@ -56,9 +56,10 @@ public class TransacaoService {
 
     public TransacaoResponse salvar(TransacaoRequest request) {
         Usuario usuario = buscarUsuario(request.getUsuarioId());
-        Categoria categoria = buscarCategoria(request.getCategoriaId());
-
-        validarCategoriaDoUsuario(categoria, request.getUsuarioId());
+        Categoria categoria = resolverCategoria(
+                request.getCategoriaId(),
+                request.getUsuarioId()
+        );
 
         Transacao transacao = new Transacao();
         preencherDados(transacao, request);
@@ -75,8 +76,10 @@ public class TransacaoService {
         Transacao transacao = buscarEntidade(id);
         validarProprietario(transacao, request.getUsuarioId());
 
-        Categoria categoria = buscarCategoria(request.getCategoriaId());
-        validarCategoriaDoUsuario(categoria, request.getUsuarioId());
+        Categoria categoria = resolverCategoria(
+                request.getCategoriaId(),
+                request.getUsuarioId()
+        );
 
         preencherDados(transacao, request);
         transacao.setCategoria(categoria);
@@ -156,8 +159,21 @@ public class TransacaoService {
                 transacao.getMetodoPagamento(),
                 transacao.getStatus(),
                 transacao.getDescricao(),
-                transacao.getCategoria().getId(),
+                transacao.getCategoria() == null
+                        ? null
+                        : transacao.getCategoria().getId(),
                 transacao.getUsuario().getId()
         );
+    }
+
+    private Categoria resolverCategoria(Long categoriaId, Long usuarioId) {
+        if (categoriaId == null) {
+            return null;
+        }
+
+        Categoria categoria = buscarCategoria(categoriaId);
+        validarCategoriaDoUsuario(categoria, usuarioId);
+
+        return categoria;
     }
 }

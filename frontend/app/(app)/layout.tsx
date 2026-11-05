@@ -75,8 +75,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             className="mx-auto mb-4 max-w-7xl rounded-xl border border-border
     bg-surface px-4 py-3 text-sm text-muted"
           >
-            Conta conectada. Transações e categorias ainda usam dados de
-            demonstração. Os saldos calculados são ilustrativos nesta etapa.
+            Conta e categorias conectadas. As transações ainda usam dados de
+            demonstração, e os saldos calculados são ilustrativos nesta etapa.
           </p>
           <BotaoSair />
           <div className="mx-auto w-full max-w-7xl">{children}</div>

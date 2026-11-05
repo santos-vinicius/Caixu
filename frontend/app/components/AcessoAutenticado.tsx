@@ -4,6 +4,7 @@ import { consultarSessao } from "@/app/lib/auth-api";
 import { buscarUsuario, type UsuarioResponse } from "@/app/lib/usuarios-api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { listarCategorias, type Categoria } from "../lib/categorias-api";
 import TransacoesProvider from "./TransacoesProvider";
 
 export default function AcessoAutenticado({
@@ -14,6 +15,7 @@ export default function AcessoAutenticado({
   const router = useRouter();
   const [usuario, setUsuario] = useState<UsuarioResponse | null>(null);
   const [erro, setErro] = useState("");
+  const [categorias, setCategorias] = useState<Categoria[] | null>(null);
 
   useEffect(() => {
     let ativo = true;
@@ -42,6 +44,13 @@ export default function AcessoAutenticado({
           return;
         }
 
+        const categoriasCarregadas = await listarCategorias();
+
+        if (!ativo) {
+          return;
+        }
+
+        setCategorias(categoriasCarregadas);
         setUsuario(dados);
       } catch (error) {
         if (ativo) {
@@ -81,7 +90,7 @@ export default function AcessoAutenticado({
     );
   }
 
-  if (!usuario) {
+  if (!usuario || categorias === null) {
     return (
       <p role="status" className="p-6 text-sm text-muted">
         Carregando sua conta…
@@ -90,7 +99,11 @@ export default function AcessoAutenticado({
   }
 
   return (
-    <TransacoesProvider key={usuario.id} usuarioInicial={usuario}>
+    <TransacoesProvider
+      key={usuario.id}
+      usuarioInicial={usuario}
+      categoriasIniciais={categorias}
+    >
       {children}
     </TransacoesProvider>
   );

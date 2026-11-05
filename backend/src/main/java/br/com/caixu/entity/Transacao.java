@@ -42,9 +42,8 @@ public class Transacao {
     @Column(name = "descricao", length = 4000)
     private String descricao;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "categoria_id_categoria", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "categoria_id_categoria", nullable = true)
     private Categoria categoria;
 
     @NotNull

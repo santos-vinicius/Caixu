@@ -43,7 +43,7 @@ CREATE TABLE transacao (
     metodo_pagamento VARCHAR2(30),
     status VARCHAR2(20),
     descricao VARCHAR2(4000),
-    categoria_id_categoria NUMBER NOT NULL,
+    categoria_id_categoria NUMBER,
     usuario_id_usuario NUMBER NOT NULL,
 
     CONSTRAINT transacao_pk

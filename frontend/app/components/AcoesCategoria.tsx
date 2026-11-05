@@ -3,10 +3,9 @@
 import { useRef, useState, type FormEvent } from "react";
 
 import { useTransacoes } from "@/app/components/TransacoesProvider";
-import type { CategoriaDemo } from "@/app/lib/categorias-demo";
-
+import type { Categoria } from "@/app/lib/categorias-api";
 type AcoesCategoriaProps = {
-  categoria: CategoriaDemo;
+  categoria: Categoria;
   onComplete: (mensagem: string) => void;
 };
 
@@ -17,18 +16,16 @@ export default function AcoesCategoria({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelarRef = useRef<HTMLButtonElement>(null);
 
-  const { transacoes, renomearCategoria, excluirCategoria } = useTransacoes();
+  const { renomearCategoria, excluirCategoria } = useTransacoes();
 
   const [acao, setAcao] = useState<"EDITAR" | "EXCLUIR">("EDITAR");
   const [nome, setNome] = useState(categoria.nomeCategoria);
   const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const operacaoEmAndamento = useRef(false);
 
   const prefixo = `categoria-${categoria.id}`;
   const editando = acao === "EDITAR";
-
-  const vinculadas = transacoes.filter(
-    (transacao) => transacao.categoriaId === categoria.id,
-  ).length;
 
   function abrir(operacao: "EDITAR" | "EXCLUIR") {
     setAcao(operacao);
@@ -38,29 +35,46 @@ export default function AcoesCategoria({
     cancelarRef.current?.focus();
   }
 
-  function confirmar(event: FormEvent<HTMLFormElement>) {
+  async function confirmar(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (editando) {
-      const mensagemErro = renomearCategoria(categoria.id, nome);
-
-      if (mensagemErro) {
-        setErro(mensagemErro);
-        return;
-      }
-
-      dialogRef.current?.close();
-      onComplete("Nome da categoria atualizado.");
+    if (operacaoEmAndamento.current) {
       return;
     }
 
-    dialogRef.current?.close();
+    operacaoEmAndamento.current = true;
+    setSalvando(true);
+    setErro("");
 
-    onComplete(
-      `Categoria excluída. ${vinculadas} lançamento(s) ficaram sem categoria. Os saldos foram preservados.`,
-    );
+    try {
+      if (editando) {
+        const mensagemErro = await renomearCategoria(categoria.id, nome);
 
-    excluirCategoria(categoria.id);
+        if (mensagemErro) {
+          setErro(mensagemErro);
+          return;
+        }
+
+        dialogRef.current?.close();
+        onComplete("Nome da categoria atualizado.");
+      } else {
+        await excluirCategoria(categoria.id);
+
+        dialogRef.current?.close();
+        onComplete(
+          "Categoria excluída. As transações vinculadas foram preservadas.",
+        );
+      }
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível concluir a operação.",
+      );
+    } finally {
+      operacaoEmAndamento.current = false;
+      setSalvando(false);
+    }
   }
 
   return (
@@ -113,6 +127,11 @@ export default function AcoesCategoria({
 
       <dialog
         ref={dialogRef}
+        onCancel={(event) => {
+          if (salvando) {
+            event.preventDefault();
+          }
+        }}
         aria-labelledby={`${prefixo}-titulo`}
         className="caixu-scrollbar fixed inset-0 m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-4 text-foreground sm:p-6 backdrop:bg-brand-plum/60"
       >
@@ -134,6 +153,7 @@ export default function AcoesCategoria({
                 id={`${prefixo}-nome`}
                 value={nome}
                 onChange={(event) => setNome(event.target.value)}
+                disabled={salvando}
                 required
                 maxLength={60}
                 className="h-12 rounded-xl border-2 border-border bg-surface px-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
@@ -150,9 +170,7 @@ export default function AcoesCategoria({
               </p>
 
               <p className="text-sm text-muted">
-                {vinculadas === 0
-                  ? "Nenhum lançamento está vinculado a esta categoria."
-                  : `${vinculadas} lançamento(s) passarão a ficar sem categoria.`}
+                As transações vinculadas a esta categoria ficarão sem categoria.
               </p>
 
               <p className="text-sm text-muted">
@@ -172,19 +190,29 @@ export default function AcoesCategoria({
             <button
               ref={cancelarRef}
               type="button"
+              disabled={salvando}
               onClick={() => dialogRef.current?.close()}
-              className="min-h-12 rounded-xl border border-border px-4 font-bold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="min-h-12 rounded-xl border border-border px-4 font-bold text-primary 
+              focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
             >
               Cancelar
             </button>
 
             <button
               type="submit"
-              className={`min-h-12 rounded-xl px-4 font-bold text-brand-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-                editando ? "bg-primary" : "bg-negative"
-              }`}
+              disabled={salvando}
+              className={`min-h-12 rounded-xl px-4 font-bold text-brand-cream focus-visible:outline-2 focus-visible:outline-offset-2 
+                focus-visible:outline-primary ${
+                  editando
+                    ? "bg-primary"
+                    : "bg-negative disabled:cursor-not-allowed disabled:opacity-60"
+                }`}
             >
-              {editando ? "Salvar nome" : "Excluir categoria"}
+              {salvando
+                ? "Aguarde..."
+                : editando
+                  ? "Salvar nome"
+                  : "Excluir categoria"}
             </button>
           </footer>
         </form>

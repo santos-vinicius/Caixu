@@ -10,6 +10,7 @@ import br.com.caixu.repository.CategoriaRepository;
 import br.com.caixu.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import br.com.caixu.repository.TransacaoRepository;
 
 import java.util.List;
 
@@ -19,13 +20,16 @@ public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TransacaoRepository transacaoRepository;
 
     public CategoriaService(
             CategoriaRepository categoriaRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            TransacaoRepository transacaoRepository
     ) {
         this.categoriaRepository = categoriaRepository;
         this.usuarioRepository = usuarioRepository;
+        this.transacaoRepository = transacaoRepository;
     }
 
     @Transactional(readOnly = true)
@@ -74,7 +78,9 @@ public class CategoriaService {
         Categoria categoria = buscarEntidade(id);
         validarProprietario(categoria, usuarioId);
 
+        transacaoRepository.desvincularCategoria(id);
         categoriaRepository.delete(categoria);
+        categoriaRepository.flush();
     }
 
     private Categoria buscarEntidade(Long id) {

@@ -1,10 +1,13 @@
 "use client";
-
-import { categoriasDemo } from "@/app/lib/categorias-demo";
+import {
+  atualizarCategoria,
+  criarCategoria,
+  removerCategoria,
+  type Categoria,
+} from "@/app/lib/categorias-api";
 import { transacoesDemo, type TransacaoDemo } from "@/app/lib/demo-data";
 import { useHoje } from "@/app/lib/use-hoje";
 import { createContext, useContext, useState, type ReactNode } from "react";
-import { CategoriaDemo } from "../lib/categorias-demo";
 import {
   selecionarParaExclusao,
   type EscopoExclusao,
@@ -29,10 +32,13 @@ type TransacoesContextValue = {
   adicionarTransacoes: (novas: NovaTransacaoDemo[]) => void;
   excluirTransacao: (id: number, escopo?: EscopoExclusao) => void;
   editarTransacao: (id: number, alteracoes: AtualizacaoTransacao) => void;
-  categorias: CategoriaDemo[];
-  adicionarCategoria: (nome: string, tipo: "RECEITA" | "DESPESA") => void;
-  renomearCategoria: (id: number, nome: string) => string | null;
-  excluirCategoria: (id: number) => void;
+  categorias: Categoria[];
+  adicionarCategoria: (
+    nome: string,
+    tipo: "RECEITA" | "DESPESA",
+  ) => Promise<void>;
+  renomearCategoria: (id: number, nome: string) => Promise<string | null>;
+  excluirCategoria: (id: number) => Promise<void>;
   usuario: UsuarioDemo;
   atualizarUsuario: (dados: Omit<UsuarioDemo, "id">) => void;
 };
@@ -44,13 +50,20 @@ const TransacoesContext = createContext<TransacoesContextValue | undefined>(
 export default function TransacoesProvider({
   children,
   usuarioInicial,
+  categoriasIniciais,
 }: {
   children: ReactNode;
   usuarioInicial: UsuarioDemo;
+  categoriasIniciais: Categoria[];
 }) {
   const dataReferencia = useHoje();
-  const [transacoes, setTransacoes] = useState<TransacaoDemo[]>(transacoesDemo);
-  const [categorias, setCategorias] = useState<CategoriaDemo[]>(categoriasDemo);
+  const [transacoes, setTransacoes] = useState<TransacaoDemo[]>(() =>
+    transacoesDemo.map((transacao) => ({
+      ...transacao,
+      categoriaId: undefined,
+    })),
+  );
+  const [categorias, setCategorias] = useState<Categoria[]>(categoriasIniciais);
   const [usuario, setUsuario] = useState<UsuarioDemo>(usuarioInicial);
 
   function adicionarTransacoes(novas: NovaTransacaoDemo[]) {
@@ -93,43 +106,39 @@ export default function TransacoesProvider({
     );
   }
 
-  function adicionarCategoria(nome: string, tipo: "RECEITA" | "DESPESA") {
+  async function adicionarCategoria(
+    nome: string,
+    tipo: "RECEITA" | "DESPESA",
+  ): Promise<void> {
     const nomeTratado = nome.trim();
 
     if (!nomeTratado || nomeTratado.length > 60) {
-      return;
+      throw new Error("Informe um nome entre 1 e 60 caracteres.");
     }
 
-    setCategorias((atuais) => {
-      const duplicada = atuais.some(
-        (categoria) =>
-          categoria.tipoCategoria === tipo &&
-          categoria.nomeCategoria.toLocaleLowerCase("pt-BR") ===
-            nomeTratado.toLocaleLowerCase("pt-BR"),
-      );
+    const duplicada = categorias.some(
+      (categoria) =>
+        categoria.tipoCategoria === tipo &&
+        categoria.nomeCategoria.toLocaleLowerCase("pt-BR") ===
+          nomeTratado.toLocaleLowerCase("pt-BR"),
+    );
 
-      if (duplicada) {
-        return atuais;
-      }
+    if (duplicada) {
+      throw new Error("Já existe uma categoria com esse nome e tipo.");
+    }
 
-      const maiorId = atuais.reduce(
-        (maior, categoria) => Math.max(maior, categoria.id),
-        0,
-      );
-
-      return [
-        ...atuais,
-        {
-          id: maiorId + 1,
-          nomeCategoria: nomeTratado,
-          tipoCategoria: tipo,
-          usuarioId: usuario.id,
-        },
-      ];
+    const criada = await criarCategoria({
+      nomeCategoria: nomeTratado,
+      tipoCategoria: tipo,
     });
+
+    setCategorias((atuais) => [...atuais, criada]);
   }
 
-  function renomearCategoria(id: number, nome: string): string | null {
+  async function renomearCategoria(
+    id: number,
+    nome: string,
+  ): Promise<string | null> {
     const nomeTratado = nome.trim();
     const categoria = categorias.find((item) => item.id === id);
 
@@ -153,26 +162,31 @@ export default function TransacoesProvider({
       return "Já existe uma categoria com esse nome e tipo.";
     }
 
+    const atualizada = await atualizarCategoria(id, {
+      nomeCategoria: nomeTratado,
+      tipoCategoria: categoria.tipoCategoria,
+    });
+
     setCategorias((atuais) =>
-      atuais.map((item) =>
-        item.id === id ? { ...item, nomeCategoria: nomeTratado } : item,
-      ),
+      atuais.map((item) => (item.id === id ? atualizada : item)),
     );
 
     return null;
   }
 
-  function excluirCategoria(id: number) {
+  async function excluirCategoria(id: number): Promise<void> {
+    await removerCategoria(id);
+
+    setCategorias((atuais) =>
+      atuais.filter((categoria) => categoria.id !== id),
+    );
+
     setTransacoes((atuais) =>
       atuais.map((transacao) =>
         transacao.categoriaId === id
           ? { ...transacao, categoriaId: undefined }
           : transacao,
       ),
-    );
-
-    setCategorias((atuais) =>
-      atuais.filter((categoria) => categoria.id !== id),
     );
   }
 

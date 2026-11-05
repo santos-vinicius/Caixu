@@ -33,7 +33,6 @@ public class TransacaoRequest {
     @Size(max = 4000)
     private String descricao;
 
-    @NotNull
     private Long categoriaId;
 
     private Long usuarioId;
