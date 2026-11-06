@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Caixu — Frontend
 
-## Getting Started
+Interface React com Next.js App Router, TypeScript e Tailwind CSS, conectada à API REST Spring Boot. Inclui autenticação, dashboard, calendário financeiro e gestão de transações, categorias e perfil, com identidade visual própria e navegação responsiva.
 
-First, run the development server:
+As instruções completas do banco, backend e arquitetura estão no [README do projeto](../README.md).
+
+## Executar
+
+Use Node.js 24 e npm. Na pasta `frontend`:
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [localhost:3000](http://localhost:3000). A API deve estar ativa em `http://localhost:8080/api`. Se necessário, ajuste `NEXT_PUBLIC_API_URL` em `.env.local` e a origem permitida no backend.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Crie sua própria conta na página `/cadastro`. A interface utiliza sessão em cookie e token CSRF para as operações de escrita. As transações e categorias são persistidas pela API, sem fallback para dados de demonstração.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Verificações e build
 
-## Learn More
+```bash
+npm run lint
+npm test
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+Depois do build, `npm start` serve a aplicação localmente. Os testes de cálculos não dependem da API; validar cadastro, login e operações financeiras exige o backend e o Oracle configurados.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Organização
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `app/`: rotas, layouts, componentes, estado e integração com a API.
+- `public/`: imagens e fontes locais da identidade Caixu.
+- `tests/`: testes dos cálculos financeiros.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Metas, reserva financeira e recuperação de senha ainda não possuem fluxo funcional completo. Não coloque segredos em variáveis `NEXT_PUBLIC_*`, pois elas são expostas ao navegador. Dependências, builds e `.env.local` permanecem fora do Git.

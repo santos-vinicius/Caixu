@@ -1,21 +1,18 @@
-# Documentos de planejamento
+# Planejamento do Caixu
 
-Esta pasta reúne documentos auxiliares que orientam o desenvolvimento do Caixu, mas não são entregáveis técnicos principais da atividade.
+Registros da construção do projeto integrador da FIAP. Preservam decisões e o escopo de cada etapa; podem descrever contratos anteriores à integração e à autenticação atuais.
 
-## Documentos atuais
+Para instalar e executar a versão atual, consulte o [README principal](../../README.md).
 
-- `CONTRATO_PROJETO_FASE7.md`: contrato entre banco, backend e frontend;
-- `DECISOES_MODELO_MVP.md`: decisões de escopo e regras do MVP;
-- `INVENTARIO_COMPARATIVO_FASE7.md`: comparação entre a Fase 6, o DinDin atual e os requisitos.
+## Documentos versionados
 
-## Regra de organização
+- [Contrato do projeto](CONTRATO_PROJETO_FASE7.md): organização inicial, entidades, relacionamentos e endpoints.
+- [Decisões do MVP](DECISOES_MODELO_MVP.md): limites de escopo e decisões de modelagem.
+- [Inventário comparativo](INVENTARIO_COMPARATIVO_FASE7.md): comparação das fases anteriores com os requisitos da atividade.
+- [Verificação HTTP](verificar_api.py): script de validação da integração; cria e remove contas temporárias próprias no ambiente configurado.
 
-Novos documentos de planejamento, decisões, inventários, contratos, estudos e registros de validação que forem gerados durante o projeto deverão ser colocados nesta pasta quando não fizerem parte do escopo inicial da entrega.
+## Organização
 
-Os artefatos principais da atividade permanecerão fora desta pasta, como:
+Documentos auxiliares ficam nesta pasta. Código executável, testes, assets utilizados pelo app e scripts de banco permanecem em `backend/`, `frontend/` e `sql/`.
 
-- projeto backend;
-- projeto frontend;
-- scripts SQL executáveis;
-- `README.md` final da entrega;
-- testes e arquivos necessários para execução do sistema.
+Arquivos de trabalho locais, pacotes de identidade, protótipos e relatórios internos não fazem parte da publicação. Os assets utilizados pela interface estão versionados em `frontend/public/`.
