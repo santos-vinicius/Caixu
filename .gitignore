@@ -24,3 +24,29 @@ application-local.yaml
 *.pem
 *.p12
 *.pfx
+
+# Configuração pessoal do VS Code
+.vscode/
+
+# Dependências, builds e logs locais (inclusive fora do frontend)
+node_modules/
+.next/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Material local de planejamento; assets do app ficam em frontend/public/
+/docs/planejamento/local/
+/docs/planejamento/RELATORIO_INTEGRACAO_*.md
+/docs/planejamento/BRIEFING_LOGO_CAIXU.md
+/docs/planejamento/CAIXU_*.zip
+/docs/planejamento/CAIXU_*.sha256
+/docs/planejamento/CAIXU_CENTRAL_VISUAL_*.html
+/docs/planejamento/VISUAL_FRONTEND_CAIXU_FASE7.html
+/docs/planejamento/central-caixu/
+/docs/planejamento/historico-identidade/
+/docs/planejamento/identidade-visual/
+/docs/planejamento/patterns-caixu-*/
