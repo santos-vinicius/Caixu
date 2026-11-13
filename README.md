@@ -7,6 +7,28 @@ Aplicação fullstack de organização financeira pessoal. Registre receitas e d
 
 O Caixu nasceu como projeto integrador da FIAP, reunindo Java, Spring Boot, Oracle e React. A interface usa Next.js, Tailwind CSS e uma identidade visual própria, com navegação adaptada para desktop e dispositivos móveis.
 
+## Telas
+
+<p align="center">
+  <img src="docs/screenshots/01-dashboard.png" alt="Visão geral do Caixu com saldo atual, saldo projetado, últimas transações e despesas futuras" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/06-fluxo-nova-transacao.gif" alt="Cadastro de uma nova despesa e atualização imediata do saldo" width="100%">
+</p>
+
+| Calendário financeiro | Compra parcelada com prévia |
+| --- | --- |
+| <img src="docs/screenshots/02-calendario.png" alt="Calendário com o saldo acumulado em cada dia do mês"> | <img src="docs/screenshots/03-lancamento-parcelado.png" alt="Formulário de nova transação parcelada em 10 vezes com prévia das parcelas"> |
+
+<p align="center">
+  <img src="docs/screenshots/04-mobile-dashboard.png" alt="Visão geral no celular" width="260">
+  &nbsp;&nbsp;
+  <img src="docs/screenshots/05-mobile-calendario.png" alt="Calendário financeiro no celular" width="260">
+</p>
+
+<p align="center"><sub>Dados fictícios de demonstração. As imagens são geradas por <code>scripts/capturas</code>.</sub></p>
+
 ## O que você pode fazer
 
 - **Organizar suas movimentações:** cadastrar, consultar, editar e excluir receitas e despesas, com categoria opcional.
